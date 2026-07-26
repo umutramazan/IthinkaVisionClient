@@ -45,6 +45,7 @@ FAZ 0 kapsamında doğrulanan ve kullanılan sürümler. Sürüm değiştiğinde
 | pydantic | 2.13.4 |
 | pydantic-settings | 2.14.2 |
 | python-multipart | 0.0.32 |
+| Pillow | 12.3.0 |
 | pytest | 9.1.1 |
 | httpx2 | 2.9.1 |
 | ruff | 0.16.0 |

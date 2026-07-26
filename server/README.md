@@ -42,6 +42,29 @@ Production ortamına yalnızca `requirements.txt` kurulur.
 Mobil uygulamayı gerçek cihazdan bağlarken `--host 0.0.0.0` gereklidir ve
 `EXPO_PUBLIC_API_BASE_URL` bilgisayarın LAN IP'sini göstermelidir.
 
+## Analyze isteği
+
+Endpoint: `POST http://127.0.0.1:8000/api/v1/analyze`
+
+Postman'da **Body → form-data** seçin ve şu alanları ekleyin:
+
+| Key | Tür | Değer |
+|---|---|---|
+| `modelType` | Text | `detection` |
+| `image` | File | Geçerli bir JPEG veya PNG dosyası |
+
+`Content-Type` başlığını elle eklemeyin; Postman multipart boundary değeriyle birlikte otomatik
+oluşturur. Aynı isteğin komut satırı karşılığı:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/analyze \
+  -F "modelType=detection" \
+  -F "image=@sample.jpg;type=image/jpeg"
+```
+
+Başarılı istek `200` ve `success: true`; geçersiz istekler standart `success: false` hata
+sözleşmesini döndürür. Desteklenen türler ve maksimum dosya boyutu `.env` üzerinden yönetilir.
+
 ## Kalite komutları
 
 | Komut | Açıklama |

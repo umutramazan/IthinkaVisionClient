@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import health
 from app.api.v1.router import api_router
 from app.config.settings import Settings, get_settings
+from app.core.exception_handlers import register_exception_handlers
 from app.core.logging import configure_logging, get_logger
 
 logger = get_logger(__name__)
@@ -34,6 +35,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
     )
     app.state.settings = settings
+    register_exception_handlers(app)
 
     app.add_middleware(
         CORSMiddleware,

@@ -1,5 +1,7 @@
 from fastapi import APIRouter
 
+from app.api.v1 import analyze
+
 api_router = APIRouter()
 
-# FAZ 1'de /analyze router'ı buraya eklenecek.
+api_router.include_router(analyze.router)

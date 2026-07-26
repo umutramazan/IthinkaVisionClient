@@ -8,7 +8,7 @@ Bu repository, müşterilere bilgisayarlı görü modelini hızlı biçimde gös
 - Öğrenme ve araştırma görevleri proje eforuna dahildir; görünmez kişisel hazırlık olarak değerlendirilmez.
 - Her task en fazla 16 saat olacak şekilde bölünür.
 - API sözleşmesi, mobil mimari, model runtime, container ve deployment aşamalarında teknik reviewer onayı zorunludur.
-- Azure DevOps iş paketleri ve eforları [Azure DevOps Backlog ve Efor Planı](docs/AZURE-DEVOPS-BACKLOG.md) içinde tanımlanmıştır.
+- Azure DevOps iş paketleri ve eforları proje planına göre tanımlanır.
 
 ## MVP Tanımı
 
@@ -99,12 +99,12 @@ Model formatına özel kod inference adaptöründe tutulur. Mobil uygulama ve AP
 
 ## Fazlar
 
-Azure DevOps iş paketleri, saat eforları, review kapıları ve toplam takvim tahmini için [Azure DevOps Backlog ve Efor Planı](docs/AZURE-DEVOPS-BACKLOG.md) kullanılmalıdır.
+Azure DevOps iş paketleri, saat eforları, review kapıları ve toplam takvim tahmini faz planlarına göre hazırlanmalıdır.
 
 | Faz | Dosya | Durum | Temel çıktı |
 |---:|---|---|---|
 | 0 | [Proje Temeli](docs/phases/PHASE-00-foundation.md) | Tamamlandı | Mobil ve sunucu iskeletleri |
-| 1 | [Dummy Detection API](docs/phases/PHASE-01-backend-dummy.md) | Başlanmadı | Test edilmiş dummy endpoint |
+| 1 | [Dummy Detection API](docs/phases/PHASE-01-backend-dummy.md) | Tamamlandı | Test edilmiş dummy endpoint |
 | 2 | [Mobil Statik Arayüz](docs/phases/PHASE-02-mobile-static-ui.md) | Başlanmadı | Android+iOS statik MVP ekranı |
 | 3 | [Kamera ve Galeri](docs/phases/PHASE-03-image-acquisition.md) | Başlanmadı | Optimize edilmiş gerçek görsel |
 | 4 | [Dummy Uçtan Uca](docs/phases/PHASE-04-dummy-e2e.md) | Başlanmadı | Mobil ↔ dummy API akışı |
@@ -150,7 +150,7 @@ Durum alanı şu değerleri alır ve faz dosyasındaki kutularla birlikte aynı 
 | Cihaz doğrulaması bekliyor | Kod tamam, yalnızca fiziksel cihaz gerektiren kontroller açık |
 | Tamamlandı | Tüm görevler, doğrulamalar ve varsa review kapısı kapandı |
 
-Projeyi geliştirecek mühendisin mobil deneyimi olmadığı için öğrenme görevleri normal proje işi olarak Azure DevOps'a açılır. Her task en fazla 16 saat olacak şekilde bölünür; daha büyük görünen iş önce araştırma/spike task'ına ayrılır. Faz geçişlerinde [backlog planındaki](docs/AZURE-DEVOPS-BACKLOG.md) teknik review kapıları zorunludur.
+Projeyi geliştirecek mühendisin mobil deneyimi olmadığı için öğrenme görevleri normal proje işi olarak Azure DevOps'a açılır. Her task en fazla 16 saat olacak şekilde bölünür; daha büyük görünen iş önce araştırma/spike task'ına ayrılır. Faz geçişlerinde ilgili teknik review kapıları zorunludur.
 
 ## Açık Kararlar
 
