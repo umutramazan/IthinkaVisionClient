@@ -1,0 +1,6 @@
+-r requirements.txt
+
+pytest==9.1.1
+# starlette TestClient httpx2 bekliyor; httpx kurulu olmamalı.
+httpx2==2.9.1
+ruff==0.16.0

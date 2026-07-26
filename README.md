@@ -103,7 +103,7 @@ Azure DevOps iş paketleri, saat eforları, review kapıları ve toplam takvim t
 
 | Faz | Dosya | Durum | Temel çıktı |
 |---:|---|---|---|
-| 0 | [Proje Temeli](docs/phases/PHASE-00-foundation.md) | Başlanmadı | Mobil ve sunucu iskeletleri |
+| 0 | [Proje Temeli](docs/phases/PHASE-00-foundation.md) | Tamamlandı | Mobil ve sunucu iskeletleri |
 | 1 | [Dummy Detection API](docs/phases/PHASE-01-backend-dummy.md) | Başlanmadı | Test edilmiş dummy endpoint |
 | 2 | [Mobil Statik Arayüz](docs/phases/PHASE-02-mobile-static-ui.md) | Başlanmadı | Android+iOS statik MVP ekranı |
 | 3 | [Kamera ve Galeri](docs/phases/PHASE-03-image-acquisition.md) | Başlanmadı | Optimize edilmiş gerçek görsel |
@@ -141,6 +141,15 @@ Her faz dosyasında:
 
 bulunur. Bir faz tamamlandığında görev kutuları ve bu README'deki durum tablosu güncellenir. Başarısız test veya karşılanmayan kabul kriteri varken sonraki bağımlı faz tamamlanmış sayılmaz.
 
+Durum alanı şu değerleri alır ve faz dosyasındaki kutularla birlikte aynı commit içinde güncellenir:
+
+| Durum | Anlamı |
+|---|---|
+| Başlanmadı | Faz dosyasında işaretli görev yok |
+| Devam ediyor | En az bir görev tamamlandı, doğrulama kapanmadı |
+| Cihaz doğrulaması bekliyor | Kod tamam, yalnızca fiziksel cihaz gerektiren kontroller açık |
+| Tamamlandı | Tüm görevler, doğrulamalar ve varsa review kapısı kapandı |
+
 Projeyi geliştirecek mühendisin mobil deneyimi olmadığı için öğrenme görevleri normal proje işi olarak Azure DevOps'a açılır. Her task en fazla 16 saat olacak şekilde bölünür; daha büyük görünen iş önce araştırma/spike task'ına ayrılır. Faz geçişlerinde [backlog planındaki](docs/AZURE-DEVOPS-BACKLOG.md) teknik review kapıları zorunludur.
 
 ## Açık Kararlar
@@ -157,6 +166,32 @@ Bunlar FAZ 0–4 başlangıcını engellemez:
 
 Bu kararlar gerçek model ölçümleri ve şirket sunucusu bilgileri elde edildiğinde FAZ 5, FAZ 8 ve FAZ 9 içinde kesinleştirilecektir.
 
-## Başlangıç
+## Repository yapısı
 
-Uygulamaya [FAZ 0 — Proje Temeli ve Teknik Hazırlık](docs/phases/PHASE-00-foundation.md) dosyasındaki kontrol listesiyle başlanır.
+```text
+mobile/   Expo + React Native + TypeScript istemcisi
+server/   FastAPI sunucusu
+docs/     Faz planları ve ortam kayıtları
+```
+
+## Hızlı başlangıç
+
+```powershell
+# Sunucu
+cd server
+py -3.14 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+Copy-Item .env.example .env
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Mobil (ayrı terminal)
+cd mobile
+npm install
+Copy-Item .env.example .env
+npm start
+```
+
+Ayrıntılar için [mobile/README.md](mobile/README.md) ve [server/README.md](server/README.md);
+doğrulanan sürümler için [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) dosyalarına bakınız.
+
+Faz sırası [FAZ 0 — Proje Temeli ve Teknik Hazırlık](docs/phases/PHASE-00-foundation.md) ile başlar.
