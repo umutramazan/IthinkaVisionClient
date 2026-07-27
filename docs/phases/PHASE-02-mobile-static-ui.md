@@ -22,18 +22,18 @@ Tek ekran:
 
 ## Görevler
 
-- [ ] `HomeScreen` ve temel sayfa yerleşimini oluştur.
-- [ ] `ImageSourceButtons` bileşenini oluştur.
-- [ ] `ImagePreview` bileşenini oluştur.
-- [ ] `ModelSelector` bileşenini oluştur; yalnızca `Detection` seçeneğini göster.
-- [ ] Model seçeneklerini `constants/models.ts` üzerinden besle.
-- [ ] `LoadingOverlay`, `ResultCard` ve `ErrorDialog` bileşenlerini oluştur.
-- [ ] Sonuç kartlarında sınıf adı ve güven yüzdesi göster.
-- [ ] Aynı sınıf sonuçlarını gruplamaya uygun bir view-model yardımcı fonksiyonu tasarla.
-- [ ] Türkçe kullanıcı mesajlarını `constants/messages.ts` içinde merkezileştir.
-- [ ] Tema, spacing, renk ve tipografi değerlerini merkezileştir.
-- [ ] Kamera/galeri izin açıklamalarını `app.json` veya app config içine ekle.
-- [ ] Statik sahte verilerle başarı, boş sonuç, loading ve hata durumlarını göster.
+- [x] `HomeScreen` ve temel sayfa yerleşimini oluştur.
+- [x] `ImageSourceButtons` bileşenini oluştur.
+- [x] `ImagePreview` bileşenini oluştur.
+- [x] `ModelSelector` bileşenini oluştur; yalnızca `Detection` seçeneğini göster.
+- [x] Model seçeneklerini `constants/models.ts` üzerinden besle.
+- [x] `LoadingOverlay`, `ResultCard` ve `ErrorDialog` bileşenlerini oluştur.
+- [x] Sonuç kartlarında sınıf adı ve güven yüzdesi göster.
+- [x] Aynı sınıf sonuçlarını gruplamaya uygun bir view-model yardımcı fonksiyonu tasarla.
+- [x] Türkçe kullanıcı mesajlarını `constants/messages.ts` içinde merkezileştir.
+- [x] Tema, spacing, renk ve tipografi değerlerini merkezileştir.
+- [x] Kamera/galeri izin açıklamalarını `app.json` veya app config içine ekle.
+- [x] Statik sahte verilerle başarı, boş sonuç, loading ve hata durumlarını göster.
 
 ## UX kuralları
 
@@ -45,13 +45,23 @@ Tek ekran:
 
 ## Testler
 
-- [ ] Model seçilmeden değerlendirme validasyonu.
-- [ ] Confidence yüzde formatı.
-- [ ] Aynı sınıf sonuçlarının gruplama fonksiyonu.
-- [ ] Boş sonuç görünümü.
-- [ ] Loading sırasında butonların pasif olması.
+- [x] Model seçilmeden değerlendirme validasyonu.
+- [x] Confidence yüzde formatı.
+- [x] Aynı sınıf sonuçlarının gruplama fonksiyonu.
+- [x] Boş sonuç görünümü.
+- [x] Loading sırasında butonların pasif olması.
 - [ ] Android küçük/büyük ekran yerleşim kontrolü.
-- [ ] iOS küçük/büyük ekran yerleşim kontrolü.
+- [x] iOS küçük/büyük ekran yerleşim kontrolü.
+
+### Ara doğrulama notları
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm run check` (typecheck + lint + format + Jest) | Temiz; 12 test geçti |
+| `npx expo-doctor` | 18/18 kontrol geçti |
+| Açık/koyu tema | Brandbook renkleriyle sistem temasını otomatik takip ediyor |
+| Android küçük/büyük ekran | Telefon mevcut olmadığından kullanıcı kararıyla ertelendi (2026-07-27) |
+| iPhone gerçek cihaz (Expo Go) | Başarılı — taşma/kesilme yok; seçim, validasyon, statik durumlar, loading, sonuç kartları, kaydırma ve diyalog doğrulandı (2026-07-27) |
 
 ## Tamamlanma kriteri
 
@@ -62,4 +72,3 @@ Android ve iOS üzerinde tek ekranlık akış statik verilerle tamamlanabiliyor;
 - Statik MVP ekranı
 - Yeniden kullanılabilir UI bileşenleri
 - Sonuç biçimlendirme yardımcıları
-
