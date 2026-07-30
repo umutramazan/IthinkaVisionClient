@@ -1,4 +1,4 @@
-export type ModelType = 'detection';
+import type { ModelType } from '../types/api';
 
 export interface ModelOption {
   id: ModelType;

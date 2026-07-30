@@ -24,6 +24,10 @@ export const messages = {
   pendingImageError: 'Seçilen görsel geri yüklenirken bir sorun oluştu. Lütfen tekrar seçin.',
   imageOptimizationError:
     'Görsel gönderime hazırlanırken bir sorun oluştu. Lütfen farklı bir görsel deneyin.',
+  serverUnavailable: 'Sunucuya bağlanılamadı.',
+  requestTimeout: 'Sunucudan cevap alınamadı.',
+  invalidOrLargeImage: 'Geçersiz veya çok büyük görsel.',
+  serverError: 'İşlem sırasında bir hata oluştu.',
   genericError: 'Görsel değerlendirilirken bir sorun oluştu. Lütfen tekrar deneyin.',
   close: 'Kapat',
   count: 'adet',

@@ -1,7 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import type { ModelOption, ModelType } from '../constants/models';
+import type { ModelOption } from '../constants/models';
 import { radius, spacing, type ThemeColors, typography, useAppTheme } from '../theme';
+import type { ModelType } from '../types/api';
 
 interface ModelSelectorProps {
   models: readonly ModelOption[];

@@ -1,6 +1,8 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import { HomeScreen } from '../screens/HomeScreen';
+import { analyzeImage } from '../services/analyzeService';
+import type { AnalyzeSuccessResponse } from '../types/api';
 import { optimizeImage } from '../utils/imageOptimizer';
 import { pickImageFromLibrary } from '../utils/imagePicker';
 
@@ -15,8 +17,23 @@ jest.mock('../utils/imageOptimizer', () => ({
   optimizeImage: jest.fn(),
 }));
 
+jest.mock('../services/analyzeService', () => ({
+  ...jest.requireActual('../services/analyzeService'),
+  analyzeImage: jest.fn(),
+}));
+
 const pickImageFromLibraryMock = jest.mocked(pickImageFromLibrary);
 const optimizeImageMock = jest.mocked(optimizeImage);
+const analyzeImageMock = jest.mocked(analyzeImage);
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+
+  return { promise, resolve };
+}
 
 async function selectGallery(getByText: ReturnType<typeof render>['getByText']) {
   fireEvent.press(getByText('Galeri'));
@@ -25,6 +42,15 @@ async function selectGallery(getByText: ReturnType<typeof render>['getByText']) 
 
 describe('HomeScreen', () => {
   beforeEach(() => {
+    analyzeImageMock.mockReset();
+    analyzeImageMock.mockResolvedValue({
+      success: true,
+      detections: [
+        { class: 'Person', confidence: 0.96 },
+        { class: 'Helmet', confidence: 0.91 },
+        { class: 'Person', confidence: 0.89 },
+      ],
+    });
     pickImageFromLibraryMock.mockResolvedValue({
       status: 'selected',
       image: {
@@ -45,12 +71,14 @@ describe('HomeScreen', () => {
     }));
   });
 
-  afterEach(() => jest.useRealTimers());
-
-  it('yalnızca Detection modelini gösterir', () => {
+  it('yalnızca Detection modelini gösterir ve statik demo seçeneklerini kaldırır', () => {
     const { getByText, queryByText } = render(<HomeScreen />);
     expect(getByText('Detection')).toBeTruthy();
     expect(queryByText('Classification')).toBeNull();
+    expect(queryByText('Statik demo sonucu')).toBeNull();
+    expect(queryByText('Başarılı')).toBeNull();
+    expect(queryByText('Boş')).toBeNull();
+    expect(queryByText('Hata')).toBeNull();
   });
 
   it('görsel seçilmeden değerlendirmeyi engeller', () => {
@@ -66,10 +94,11 @@ describe('HomeScreen', () => {
     expect(getByText('Devam etmek için Detection modelini seçin.')).toBeTruthy();
   });
 
-  it('loading sırasında kontrolleri pasifleştirir ve gruplu sonucu gösterir', async () => {
+  it('loading sırasında kontrolleri pasifleştirir ve gerçek API sonucunu gruplar', async () => {
+    const request = deferred<AnalyzeSuccessResponse>();
+    analyzeImageMock.mockReturnValue(request.promise);
     const { getByRole, getByText } = render(<HomeScreen />);
     await selectGallery(getByText);
-    jest.useFakeTimers();
     fireEvent.press(getByText('Detection'));
     fireEvent.press(getByText('Değerlendir'));
 
@@ -81,33 +110,47 @@ describe('HomeScreen', () => {
       disabled: true,
     });
 
-    act(() => jest.advanceTimersByTime(700));
-    expect(getByText('Person')).toBeTruthy();
+    await act(async () => {
+      request.resolve({
+        success: true,
+        detections: [
+          { class: 'Person', confidence: 0.96 },
+          { class: 'Helmet', confidence: 0.91 },
+          { class: 'Person', confidence: 0.89 },
+        ],
+      });
+      await request.promise;
+    });
+
+    await waitFor(() => expect(getByText('Person')).toBeTruthy());
     expect(getByText('2 adet')).toBeTruthy();
     expect(getByText('%96')).toBeTruthy();
+    expect(analyzeImageMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        uri: 'file:///cache/optimized.jpg',
+        width: 1280,
+        height: 720,
+      }),
+      'detection',
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
   });
 
   it('boş sonucu hata yerine bilgi görünümü olarak gösterir', async () => {
+    analyzeImageMock.mockResolvedValue({ success: true, detections: [] });
     const { getByText } = render(<HomeScreen />);
     await selectGallery(getByText);
-    jest.useFakeTimers();
     fireEvent.press(getByText('Detection'));
-    fireEvent.press(getByText('Boş'));
     fireEvent.press(getByText('Değerlendir'));
-    act(() => jest.advanceTimersByTime(700));
-    expect(getByText('Nesne tespit edilemedi')).toBeTruthy();
+    await waitFor(() => expect(getByText('Nesne tespit edilemedi')).toBeTruthy());
   });
 
-  it('statik hata senaryosunu kullanıcı dostu diyalogda gösterir', async () => {
+  it('API bağlantı hatasını kullanıcı dostu diyalogda gösterir', async () => {
+    analyzeImageMock.mockRejectedValue({ isAxiosError: true, code: 'ERR_NETWORK' });
     const { getByText } = render(<HomeScreen />);
     await selectGallery(getByText);
-    jest.useFakeTimers();
     fireEvent.press(getByText('Detection'));
-    fireEvent.press(getByText('Hata'));
     fireEvent.press(getByText('Değerlendir'));
-    act(() => jest.advanceTimersByTime(700));
-    expect(
-      getByText('Görsel değerlendirilirken bir sorun oluştu. Lütfen tekrar deneyin.'),
-    ).toBeTruthy();
+    await waitFor(() => expect(getByText('Sunucuya bağlanılamadı.')).toBeTruthy());
   });
 });

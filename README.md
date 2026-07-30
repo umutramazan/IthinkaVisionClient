@@ -107,7 +107,7 @@ Azure DevOps iş paketleri, saat eforları, review kapıları ve toplam takvim t
 | 1 | [Dummy Detection API](docs/phases/PHASE-01-backend-dummy.md) | Tamamlandı | Test edilmiş dummy endpoint |
 | 2 | [Mobil Statik Arayüz](docs/phases/PHASE-02-mobile-static-ui.md) | Tamamlandı | Android+iOS statik MVP ekranı |
 | 3 | [Kamera ve Galeri](docs/phases/PHASE-03-image-acquisition.md) | Devam ediyor | Optimize edilmiş gerçek görsel |
-| 4 | [Dummy Uçtan Uca](docs/phases/PHASE-04-dummy-e2e.md) | Başlanmadı | Mobil ↔ dummy API akışı |
+| 4 | [Dummy Uçtan Uca](docs/phases/PHASE-04-dummy-e2e.md) | Cihaz doğrulaması bekliyor | Mobil ↔ dummy API akışı |
 | 5 | [Gerçek Detection](docs/phases/PHASE-05-detection-integration.md) | Başlanmadı | Gerçek model sonucu |
 | 6 | [Gözlemlenebilirlik](docs/phases/PHASE-06-observability.md) | Başlanmadı | Güvenli teknik loglar |
 | 7 | [MVP Doğrulama](docs/phases/PHASE-07-mvp-validation.md) | Başlanmadı | Android+iOS teslim adayı |

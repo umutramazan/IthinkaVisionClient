@@ -9,9 +9,10 @@ import { ModelSelector } from '../components/ModelSelector';
 import { ResultCard } from '../components/ResultCard';
 import { SectionHeader } from '../components/SectionHeader';
 import { messages } from '../constants/messages';
-import { MODEL_OPTIONS, type ModelType } from '../constants/models';
+import { MODEL_OPTIONS } from '../constants/models';
+import { useAnalyze } from '../hooks/useAnalyze';
 import { radius, spacing, type ThemeColors, typography, useAppTheme } from '../theme';
-import type { Detection } from '../types/detection';
+import type { ModelType } from '../types/api';
 import type { PickedImage } from '../types/image';
 import { groupDetections } from '../utils/detectionViewModel';
 import { ImageOptimizationError, optimizeImage } from '../utils/imageOptimizer';
@@ -20,20 +21,6 @@ import {
   pickImageFromLibrary,
   recoverPendingImagePick,
 } from '../utils/imagePicker';
-
-type DemoScenario = 'success' | 'empty' | 'error';
-
-const DEMO_DETECTIONS: readonly Detection[] = [
-  { class: 'Person', confidence: 0.96 },
-  { class: 'Helmet', confidence: 0.91 },
-  { class: 'Person', confidence: 0.89 },
-];
-
-const scenarios: readonly { id: DemoScenario; label: string }[] = [
-  { id: 'success', label: 'Başarılı' },
-  { id: 'empty', label: 'Boş' },
-  { id: 'error', label: 'Hata' },
-];
 
 function mapImageError(error: unknown, fallbackMessage: string) {
   return error instanceof ImageOptimizationError
@@ -47,19 +34,26 @@ export function HomeScreen() {
   const [imageSource, setImageSource] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<PickedImage | null>(null);
   const [selectedModel, setSelectedModel] = useState<ModelType | null>(null);
-  const [scenario, setScenario] = useState<DemoScenario>('success');
-  const [isLoading, setIsLoading] = useState(false);
   const [isPickingImage, setIsPickingImage] = useState(false);
-  const [detections, setDetections] = useState<readonly Detection[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const {
+    analyze: runAnalysis,
+    clearAnalysis,
+    detections,
+    error: analysisError,
+    isLoading,
+  } = useAnalyze();
   const groupedResults = useMemo(() => groupDetections(detections ?? []), [detections]);
 
-  const applyPickedImage = useCallback((image: PickedImage, source: string) => {
-    setImageSource(source);
-    setSelectedImage(image);
-    setDetections(null);
-    setError(null);
-  }, []);
+  const applyPickedImage = useCallback(
+    (image: PickedImage, source: string) => {
+      setImageSource(source);
+      setSelectedImage(image);
+      setLocalError(null);
+      clearAnalysis();
+    },
+    [clearAnalysis],
+  );
 
   const optimizeAndApplyImage = useCallback(
     async (image: PickedImage, source: string) => {
@@ -86,7 +80,7 @@ export function HomeScreen() {
       })
       .catch((error: unknown) => {
         if (isActive) {
-          setError(mapImageError(error, messages.pendingImageError));
+          setLocalError(mapImageError(error, messages.pendingImageError));
         }
       });
 
@@ -97,7 +91,7 @@ export function HomeScreen() {
 
   async function handleCameraPress() {
     setIsPickingImage(true);
-    setError(null);
+    setLocalError(null);
 
     try {
       const outcome = await pickImageFromCamera();
@@ -107,7 +101,7 @@ export function HomeScreen() {
       }
 
       if (outcome.status === 'permission-denied') {
-        setError(
+        setLocalError(
           outcome.canAskAgain ? messages.cameraPermissionDenied : messages.cameraPermissionBlocked,
         );
         return;
@@ -115,7 +109,7 @@ export function HomeScreen() {
 
       await optimizeAndApplyImage(outcome.image, messages.camera);
     } catch (error) {
-      setError(mapImageError(error, messages.cameraError));
+      setLocalError(mapImageError(error, messages.cameraError));
     } finally {
       setIsPickingImage(false);
     }
@@ -123,7 +117,7 @@ export function HomeScreen() {
 
   async function handleGalleryPress() {
     setIsPickingImage(true);
-    setError(null);
+    setLocalError(null);
 
     try {
       const outcome = await pickImageFromLibrary();
@@ -132,32 +126,33 @@ export function HomeScreen() {
         await optimizeAndApplyImage(outcome.image, messages.gallery);
       }
     } catch (error) {
-      setError(mapImageError(error, messages.galleryError));
+      setLocalError(mapImageError(error, messages.galleryError));
     } finally {
       setIsPickingImage(false);
     }
   }
 
-  function analyze() {
-    if (!imageSource) {
-      setError(messages.imageRequired);
+  function handleAnalyze() {
+    if (!selectedImage) {
+      setLocalError(messages.imageRequired);
       return;
     }
     if (!selectedModel) {
-      setError(messages.modelRequired);
+      setLocalError(messages.modelRequired);
       return;
     }
 
-    setIsLoading(true);
-    setDetections(null);
-    setTimeout(() => {
-      setIsLoading(false);
-      if (scenario === 'error') {
-        setError(messages.genericError);
-      } else {
-        setDetections(scenario === 'success' ? DEMO_DETECTIONS : []);
-      }
-    }, 700);
+    setLocalError(null);
+    void runAnalysis(selectedImage, selectedModel);
+  }
+
+  function closeError() {
+    if (localError) {
+      setLocalError(null);
+      return;
+    }
+
+    clearAnalysis();
   }
 
   return (
@@ -197,36 +192,11 @@ export function HomeScreen() {
           />
         </View>
 
-        <View style={styles.demoPanel}>
-          <Text style={styles.demoLabel}>{messages.demoScenario}</Text>
-          <View style={styles.scenarioRow}>
-            {scenarios.map((item) => (
-              <Pressable
-                key={item.id}
-                accessibilityRole="button"
-                accessibilityState={{
-                  disabled: isLoading || isPickingImage,
-                  selected: scenario === item.id,
-                }}
-                disabled={isLoading || isPickingImage}
-                onPress={() => setScenario(item.id)}
-                style={[styles.scenarioChip, scenario === item.id && styles.scenarioChipSelected]}
-              >
-                <Text
-                  style={[styles.scenarioText, scenario === item.id && styles.scenarioTextSelected]}
-                >
-                  {item.label}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-
         <Pressable
           accessibilityRole="button"
           accessibilityState={{ disabled: isLoading || isPickingImage }}
           disabled={isLoading || isPickingImage}
-          onPress={analyze}
+          onPress={handleAnalyze}
           style={({ pressed }) => [
             styles.analyzeButton,
             pressed && styles.pressed,
@@ -258,7 +228,7 @@ export function HomeScreen() {
       </ScrollView>
 
       <LoadingOverlay visible={isLoading} />
-      <ErrorDialog message={error} onClose={() => setError(null)} />
+      <ErrorDialog message={localError ?? analysisError} onClose={closeError} />
     </View>
   );
 }
@@ -289,26 +259,6 @@ function createStyles(colors: ThemeColors) {
       color: colors.textMuted,
     },
     section: { gap: spacing.md, marginTop: spacing.xl },
-    demoPanel: {
-      gap: spacing.sm,
-      marginTop: spacing.lg,
-      padding: spacing.md,
-      borderRadius: radius.md,
-      backgroundColor: colors.surfaceMuted,
-    },
-    demoLabel: { ...typography.caption, fontWeight: '600', color: colors.textMuted },
-    scenarioRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-    scenarioChip: {
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: radius.pill,
-      backgroundColor: colors.surface,
-    },
-    scenarioChipSelected: { borderColor: colors.primary, backgroundColor: colors.primary },
-    scenarioText: { ...typography.caption, color: colors.text },
-    scenarioTextSelected: { color: colors.onPrimary, fontWeight: '600' },
     analyzeButton: {
       minHeight: 58,
       flexDirection: 'row',

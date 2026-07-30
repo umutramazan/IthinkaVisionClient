@@ -16,7 +16,8 @@ npm install
 Copy-Item .env.example .env
 ```
 
-`.env` içindeki `EXPO_PUBLIC_API_BASE_URL` değerini kendi ortamınıza göre düzenleyin.
+Yerel geliştirme için `.env.development.example` dosyasını `.env.local` olarak kopyalayıp
+`EXPO_PUBLIC_API_BASE_URL` değerini kendi ortamınıza göre düzenleyin.
 Gerçek cihazdan test ederken `localhost` çalışmaz; bilgisayarınızın LAN IP'sini yazın
 (Android emülatöründe `http://10.0.2.2:8000`).
 
@@ -41,9 +42,14 @@ npm run ios      # Yalnızca macOS
 
 ## Ortam değişkenleri
 
-Expo yalnızca `EXPO_PUBLIC_` önekli değişkenleri istemciye aktarır. Ortam ayrımı için
-`.env.development` ve `.env.production` dosyaları kullanılabilir; gerçek `.env` dosyaları
-version control'e girmez. Adresler koda gömülmez, `config/env.ts` üzerinden okunur.
+Expo yalnızca `EXPO_PUBLIC_` önekli değişkenleri istemciye aktarır. Development ve production
+aynı `EXPO_PUBLIC_API_BASE_URL` anahtarını farklı değerlerle kullanır:
+
+- Development değeri `.env.local` içindeki bilgisayar LAN adresidir.
+- Production değeri build ortamından verilen şirket sunucusunun HTTPS adresidir.
+
+Şablonlar `.env.development.example` ve `.env.production.example` dosyalarındadır. Gerçek `.env`
+dosyaları version control'e girmez; adresler koda gömülmez ve `config/env.ts` üzerinden okunur.
 
 ## Klasör yapısı
 
