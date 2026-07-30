@@ -50,7 +50,7 @@ Tek ekran:
 - [x] Aynı sınıf sonuçlarının gruplama fonksiyonu.
 - [x] Boş sonuç görünümü.
 - [x] Loading sırasında butonların pasif olması.
-- [ ] Android küçük/büyük ekran yerleşim kontrolü.
+- [x] Android küçük/büyük ekran yerleşim kontrolü.
 - [x] iOS küçük/büyük ekran yerleşim kontrolü.
 
 ### Ara doğrulama notları
@@ -60,7 +60,7 @@ Tek ekran:
 | `npm run check` (typecheck + lint + format + Jest) | Temiz; 12 test geçti |
 | `npx expo-doctor` | 18/18 kontrol geçti |
 | Açık/koyu tema | Brandbook renkleriyle sistem temasını otomatik takip ediyor |
-| Android küçük/büyük ekran | Telefon mevcut olmadığından kullanıcı kararıyla ertelendi (2026-07-27) |
+| Android gerçek cihaz | Başarılı — statik akış ve yerleşim doğrulandı (2026-07-30) |
 | iPhone gerçek cihaz (Expo Go) | Başarılı — taşma/kesilme yok; seçim, validasyon, statik durumlar, loading, sonuç kartları, kaydırma ve diyalog doğrulandı (2026-07-27) |
 
 ## Tamamlanma kriteri
