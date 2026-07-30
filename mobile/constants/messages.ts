@@ -16,6 +16,14 @@ export const messages = {
   noResultsDescription: 'Bu görselde seçili modelin tanıdığı bir nesne bulunamadı.',
   imageRequired: 'Devam etmek için kamera veya galeriden bir görsel seçin.',
   modelRequired: 'Devam etmek için Detection modelini seçin.',
+  cameraPermissionDenied: 'Fotoğraf çekebilmek için kamera izni gereklidir.',
+  cameraPermissionBlocked:
+    'Kamera izni kalıcı olarak reddedildi. Telefon ayarlarından iThinka Vision için kamera iznini açın.',
+  cameraError: 'Kamera açılırken bir sorun oluştu. Lütfen tekrar deneyin.',
+  galleryError: 'Galeri açılırken bir sorun oluştu. Lütfen tekrar deneyin.',
+  pendingImageError: 'Seçilen görsel geri yüklenirken bir sorun oluştu. Lütfen tekrar seçin.',
+  imageOptimizationError:
+    'Görsel gönderime hazırlanırken bir sorun oluştu. Lütfen farklı bir görsel deneyin.',
   genericError: 'Görsel değerlendirilirken bir sorun oluştu. Lütfen tekrar deneyin.',
   close: 'Kapat',
   count: 'adet',

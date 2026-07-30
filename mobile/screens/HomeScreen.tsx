@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ErrorDialog } from '../components/ErrorDialog';
 import { ImagePreview } from '../components/ImagePreview';
@@ -12,7 +12,14 @@ import { messages } from '../constants/messages';
 import { MODEL_OPTIONS, type ModelType } from '../constants/models';
 import { radius, spacing, type ThemeColors, typography, useAppTheme } from '../theme';
 import type { Detection } from '../types/detection';
+import type { PickedImage } from '../types/image';
 import { groupDetections } from '../utils/detectionViewModel';
+import { ImageOptimizationError, optimizeImage } from '../utils/imageOptimizer';
+import {
+  pickImageFromCamera,
+  pickImageFromLibrary,
+  recoverPendingImagePick,
+} from '../utils/imagePicker';
 
 type DemoScenario = 'success' | 'empty' | 'error';
 
@@ -28,20 +35,107 @@ const scenarios: readonly { id: DemoScenario; label: string }[] = [
   { id: 'error', label: 'Hata' },
 ];
 
+function mapImageError(error: unknown, fallbackMessage: string) {
+  return error instanceof ImageOptimizationError
+    ? messages.imageOptimizationError
+    : fallbackMessage;
+}
+
 export function HomeScreen() {
   const { colors } = useAppTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [imageSource, setImageSource] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<PickedImage | null>(null);
   const [selectedModel, setSelectedModel] = useState<ModelType | null>(null);
   const [scenario, setScenario] = useState<DemoScenario>('success');
   const [isLoading, setIsLoading] = useState(false);
+  const [isPickingImage, setIsPickingImage] = useState(false);
   const [detections, setDetections] = useState<readonly Detection[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const groupedResults = useMemo(() => groupDetections(detections ?? []), [detections]);
 
-  function selectImage(source: string) {
+  const applyPickedImage = useCallback((image: PickedImage, source: string) => {
     setImageSource(source);
+    setSelectedImage(image);
     setDetections(null);
+    setError(null);
+  }, []);
+
+  const optimizeAndApplyImage = useCallback(
+    async (image: PickedImage, source: string) => {
+      const optimizedImage = await optimizeImage(image);
+      applyPickedImage(optimizedImage, source);
+    },
+    [applyPickedImage],
+  );
+
+  useEffect(() => {
+    if (Platform.OS !== 'android') {
+      return;
+    }
+
+    let isActive = true;
+
+    recoverPendingImagePick()
+      .then((outcome) => {
+        if (isActive && outcome?.status === 'selected') {
+          return optimizeAndApplyImage(outcome.image, messages.gallery);
+        }
+
+        return undefined;
+      })
+      .catch((error: unknown) => {
+        if (isActive) {
+          setError(mapImageError(error, messages.pendingImageError));
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [optimizeAndApplyImage]);
+
+  async function handleCameraPress() {
+    setIsPickingImage(true);
+    setError(null);
+
+    try {
+      const outcome = await pickImageFromCamera();
+
+      if (outcome.status === 'canceled') {
+        return;
+      }
+
+      if (outcome.status === 'permission-denied') {
+        setError(
+          outcome.canAskAgain ? messages.cameraPermissionDenied : messages.cameraPermissionBlocked,
+        );
+        return;
+      }
+
+      await optimizeAndApplyImage(outcome.image, messages.camera);
+    } catch (error) {
+      setError(mapImageError(error, messages.cameraError));
+    } finally {
+      setIsPickingImage(false);
+    }
+  }
+
+  async function handleGalleryPress() {
+    setIsPickingImage(true);
+    setError(null);
+
+    try {
+      const outcome = await pickImageFromLibrary();
+
+      if (outcome.status === 'selected') {
+        await optimizeAndApplyImage(outcome.image, messages.gallery);
+      }
+    } catch (error) {
+      setError(mapImageError(error, messages.galleryError));
+    } finally {
+      setIsPickingImage(false);
+    }
   }
 
   function analyze() {
@@ -78,11 +172,19 @@ export function HomeScreen() {
         <View style={styles.section}>
           <SectionHeader step={1} title={messages.chooseImage} />
           <ImageSourceButtons
-            disabled={isLoading}
-            onCameraPress={() => selectImage(messages.camera)}
-            onGalleryPress={() => selectImage(messages.gallery)}
+            disabled={isLoading || isPickingImage}
+            onCameraPress={handleCameraPress}
+            onGalleryPress={handleGalleryPress}
           />
-          <ImagePreview hasImage={imageSource !== null} sourceLabel={imageSource ?? undefined} />
+          <ImagePreview
+            hasImage={imageSource !== null}
+            imageUri={selectedImage?.uri}
+            sourceLabel={
+              imageSource && selectedImage
+                ? `${imageSource} · ${selectedImage.width} × ${selectedImage.height}`
+                : (imageSource ?? undefined)
+            }
+          />
         </View>
 
         <View style={styles.section}>
@@ -90,7 +192,7 @@ export function HomeScreen() {
           <ModelSelector
             models={MODEL_OPTIONS}
             selectedModel={selectedModel}
-            disabled={isLoading}
+            disabled={isLoading || isPickingImage}
             onSelect={setSelectedModel}
           />
         </View>
@@ -102,8 +204,11 @@ export function HomeScreen() {
               <Pressable
                 key={item.id}
                 accessibilityRole="button"
-                accessibilityState={{ disabled: isLoading, selected: scenario === item.id }}
-                disabled={isLoading}
+                accessibilityState={{
+                  disabled: isLoading || isPickingImage,
+                  selected: scenario === item.id,
+                }}
+                disabled={isLoading || isPickingImage}
                 onPress={() => setScenario(item.id)}
                 style={[styles.scenarioChip, scenario === item.id && styles.scenarioChipSelected]}
               >
@@ -119,8 +224,8 @@ export function HomeScreen() {
 
         <Pressable
           accessibilityRole="button"
-          accessibilityState={{ disabled: isLoading }}
-          disabled={isLoading}
+          accessibilityState={{ disabled: isLoading || isPickingImage }}
+          disabled={isLoading || isPickingImage}
           onPress={analyze}
           style={({ pressed }) => [
             styles.analyzeButton,

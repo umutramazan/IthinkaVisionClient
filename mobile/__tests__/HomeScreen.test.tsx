@@ -1,8 +1,50 @@
-import { act, fireEvent, render } from '@testing-library/react-native';
+import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import { HomeScreen } from '../screens/HomeScreen';
+import { optimizeImage } from '../utils/imageOptimizer';
+import { pickImageFromLibrary } from '../utils/imagePicker';
+
+jest.mock('../utils/imagePicker', () => ({
+  pickImageFromCamera: jest.fn(),
+  pickImageFromLibrary: jest.fn(),
+  recoverPendingImagePick: jest.fn(),
+}));
+
+jest.mock('../utils/imageOptimizer', () => ({
+  ImageOptimizationError: class ImageOptimizationError extends Error {},
+  optimizeImage: jest.fn(),
+}));
+
+const pickImageFromLibraryMock = jest.mocked(pickImageFromLibrary);
+const optimizeImageMock = jest.mocked(optimizeImage);
+
+async function selectGallery(getByText: ReturnType<typeof render>['getByText']) {
+  fireEvent.press(getByText('Galeri'));
+  await waitFor(() => expect(getByText('Görsel analiz için hazır')).toBeTruthy());
+}
 
 describe('HomeScreen', () => {
+  beforeEach(() => {
+    pickImageFromLibraryMock.mockResolvedValue({
+      status: 'selected',
+      image: {
+        uri: 'file:///library/test.jpg',
+        width: 1600,
+        height: 900,
+        fileName: 'test.jpg',
+        mimeType: 'image/jpeg',
+      },
+    });
+    optimizeImageMock.mockImplementation(async (image) => ({
+      ...image,
+      uri: 'file:///cache/optimized.jpg',
+      width: 1280,
+      height: 720,
+      fileName: 'ithinka-analysis.jpg',
+      mimeType: 'image/jpeg',
+    }));
+  });
+
   afterEach(() => jest.useRealTimers());
 
   it('yalnızca Detection modelini gösterir', () => {
@@ -17,17 +59,17 @@ describe('HomeScreen', () => {
     expect(getByText('Devam etmek için kamera veya galeriden bir görsel seçin.')).toBeTruthy();
   });
 
-  it('model seçilmeden değerlendirmeyi engeller', () => {
+  it('model seçilmeden değerlendirmeyi engeller', async () => {
     const { getByText } = render(<HomeScreen />);
-    fireEvent.press(getByText('Galeri'));
+    await selectGallery(getByText);
     fireEvent.press(getByText('Değerlendir'));
     expect(getByText('Devam etmek için Detection modelini seçin.')).toBeTruthy();
   });
 
-  it('loading sırasında kontrolleri pasifleştirir ve gruplu sonucu gösterir', () => {
-    jest.useFakeTimers();
+  it('loading sırasında kontrolleri pasifleştirir ve gruplu sonucu gösterir', async () => {
     const { getByRole, getByText } = render(<HomeScreen />);
-    fireEvent.press(getByText('Galeri'));
+    await selectGallery(getByText);
+    jest.useFakeTimers();
     fireEvent.press(getByText('Detection'));
     fireEvent.press(getByText('Değerlendir'));
 
@@ -45,10 +87,10 @@ describe('HomeScreen', () => {
     expect(getByText('%96')).toBeTruthy();
   });
 
-  it('boş sonucu hata yerine bilgi görünümü olarak gösterir', () => {
-    jest.useFakeTimers();
+  it('boş sonucu hata yerine bilgi görünümü olarak gösterir', async () => {
     const { getByText } = render(<HomeScreen />);
-    fireEvent.press(getByText('Galeri'));
+    await selectGallery(getByText);
+    jest.useFakeTimers();
     fireEvent.press(getByText('Detection'));
     fireEvent.press(getByText('Boş'));
     fireEvent.press(getByText('Değerlendir'));
@@ -56,10 +98,10 @@ describe('HomeScreen', () => {
     expect(getByText('Nesne tespit edilemedi')).toBeTruthy();
   });
 
-  it('statik hata senaryosunu kullanıcı dostu diyalogda gösterir', () => {
-    jest.useFakeTimers();
+  it('statik hata senaryosunu kullanıcı dostu diyalogda gösterir', async () => {
     const { getByText } = render(<HomeScreen />);
-    fireEvent.press(getByText('Kamera'));
+    await selectGallery(getByText);
+    jest.useFakeTimers();
     fireEvent.press(getByText('Detection'));
     fireEvent.press(getByText('Hata'));
     fireEvent.press(getByText('Değerlendir'));

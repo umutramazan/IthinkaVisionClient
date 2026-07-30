@@ -35,7 +35,8 @@
         "expo-image-picker",
         {
           "photosPermission": "Analiz edilecek görseli seçebilmek için galeri erişimi gereklidir.",
-          "cameraPermission": "Analiz edilecek fotoğrafı çekebilmek için kamera erişimi gereklidir."
+          "cameraPermission": "Analiz edilecek fotoğrafı çekebilmek için kamera erişimi gereklidir.",
+          "microphonePermission": false
         }
       ]
     ]
