@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
 from pydantic import Field, field_validator
@@ -31,6 +32,9 @@ class Settings(BaseSettings):
 
     max_upload_size_mb: int = Field(default=10, ge=1, le=50)
     allowed_image_mime_types: str = "image/jpeg,image/png"
+    model_path: Path = Path("models/best.onnx")
+    model_confidence_threshold: float = Field(default=0.25, ge=0.0, le=1.0)
+    inference_max_concurrency: int = Field(default=2, ge=1, le=16)
 
     @field_validator("log_level")
     @classmethod

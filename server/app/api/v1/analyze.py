@@ -5,7 +5,7 @@ from fastapi import APIRouter, File, Form, Request, UploadFile
 from app.config.settings import Settings
 from app.core.logging import get_logger
 from app.schemas.analyze import AnalyzeErrorResponse, AnalyzeSuccessResponse
-from app.services.dummy_analysis import analyze_dummy
+from app.services.analysis import AnalysisService, ModelUnavailableError
 from app.services.image_validation import (
     read_upload_with_limit,
     validate_image_content,
@@ -20,6 +20,7 @@ ERROR_RESPONSES = {
     413: {"model": AnalyzeErrorResponse, "description": "Görsel boyut limiti aşıldı"},
     415: {"model": AnalyzeErrorResponse, "description": "Desteklenmeyen görsel türü"},
     422: {"model": AnalyzeErrorResponse, "description": "Eksik veya geçersiz form alanı"},
+    503: {"model": AnalyzeErrorResponse, "description": "Detection modeli kullanıma hazır değil"},
     500: {"model": AnalyzeErrorResponse, "description": "Beklenmeyen sunucu hatası"},
 }
 
@@ -44,11 +45,19 @@ async def analyze_image(
         validate_model_type(model_type)
         content = await read_upload_with_limit(image, settings.max_upload_size_bytes)
         validate_image_content(content, image.content_type, settings.allowed_mime_types)
+        service: AnalysisService | None = request.app.state.analysis_service
+        if service is None:
+            raise ModelUnavailableError
+        result = await service.analyze(content)
         logger.info(
-            "Analiz tamamlandı | model_type=detection mime_type=%s size_bytes=%d",
+            (
+                "Analiz tamamlandı | model_type=detection mime_type=%s "
+                "size_bytes=%d detection_count=%d"
+            ),
             image.content_type,
             len(content),
+            len(result.detections),
         )
-        return analyze_dummy()
+        return result
     finally:
         await image.close()

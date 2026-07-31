@@ -1,8 +1,13 @@
 import logging
+import sys
 from logging.config import dictConfig
 
 
 def configure_logging(level: str = "INFO") -> None:
+    reconfigure = getattr(sys.stdout, "reconfigure", None)
+    if reconfigure is not None:
+        reconfigure(encoding="utf-8", errors="backslashreplace")
+
     dictConfig(
         {
             "version": 1,

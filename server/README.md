@@ -65,6 +65,22 @@ curl -X POST http://127.0.0.1:8000/api/v1/analyze \
 Başarılı istek `200` ve `success: true`; geçersiz istekler standart `success: false` hata
 sözleşmesini döndürür. Desteklenen türler ve maksimum dosya boyutu `.env` üzerinden yönetilir.
 
+## Detection runtime
+
+FAZ 5 geliştirme runtime'ı ONNX Runtime ve `CPUExecutionProvider` kullanır. Model
+`APP_MODEL_PATH` üzerinden uygulama başlangıcında bir kez yüklenir. Yükleme başarısız olursa liveness
+çalışmaya devam eder; readiness `503` döndürür ve analiz istekleri `MODEL_UNAVAILABLE` hatası alır.
+
+| Ayar | Varsayılan | Açıklama |
+|---|---:|---|
+| `APP_MODEL_PATH` | `models/best.onnx` | ONNX artifact yolu |
+| `APP_MODEL_CONFIDENCE_THRESHOLD` | `0.25` | Sonuçlara uygulanan ilk güven eşiği |
+| `APP_INFERENCE_MAX_CONCURRENCY` | `2` | Aynı anda çalışan en fazla inference |
+
+İlk yerel ölçümler [FAZ 5 benchmark notunda](../docs/benchmarks/PHASE-05-initial-benchmark.md)
+kayıtlıdır. Confidence eşiği ve worker sınırı gerçek fotoğraflar ve hedef sunucu üzerinde yeniden
+doğrulanacaktır.
+
 ## Kalite komutları
 
 | Komut | Açıklama |
@@ -85,8 +101,8 @@ Tüm ayarlar `APP_` önekli ortam değişkenlerinden okunur (bkz. `.env.example`
 app/
   api/          HTTP katmanı (health) ve api/v1 (FAZ 1: analyze)
   schemas/      Pydantic request/response modelleri
-  services/     İş mantığı (FAZ 1: dummy, FAZ 5: gerçek analiz)
-  inference/    Model formatına özel kod (FAZ 5)
+  services/     İş mantığı ve sınırlı inference worker'ı
+  inference/    BaseModel arayüzü ve ONNX detection adaptörü
   core/         Loglama gibi çapraz kesen altyapı
   config/       Ayarlar
 tests/          pytest testleri

@@ -3,7 +3,7 @@ from io import BytesIO
 from pathlib import Path
 from types import SimpleNamespace
 from typing import cast
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi import Request, UploadFile
@@ -13,7 +13,10 @@ from starlette.datastructures import Headers
 
 from app.api.v1.analyze import analyze_image
 from app.config.settings import Settings
+from app.inference.base_model import BaseModel
 from app.main import create_app
+from app.schemas.analyze import Detection
+from app.services.analysis import AnalysisService
 from app.services.image_validation import ImageValidationError
 
 
@@ -21,6 +24,30 @@ def make_image(image_format: str = "JPEG") -> bytes:
     buffer = BytesIO()
     Image.new("RGB", (2, 2), color="white").save(buffer, format=image_format)
     return buffer.getvalue()
+
+
+class FakeDetectionModel(BaseModel):
+    def predict(self, image_bytes: bytes) -> list[Detection]:
+        return [
+            Detection(class_name="Person", confidence=0.96),
+            Detection(class_name="Helmet", confidence=0.91),
+        ]
+
+
+def make_request() -> tuple[Request, AnalysisService]:
+    service = AnalysisService(FakeDetectionModel(), max_concurrency=1)
+    request = cast(
+        Request,
+        SimpleNamespace(
+            app=SimpleNamespace(
+                state=SimpleNamespace(
+                    settings=Settings(log_level="CRITICAL"),
+                    analysis_service=service,
+                )
+            )
+        ),
+    )
+    return request, service
 
 
 @pytest.mark.parametrize(
@@ -94,7 +121,10 @@ def test_unexpected_error_does_not_leak_exception_details() -> None:
     app = create_app(Settings(env="development", log_level="CRITICAL"))
 
     with (
-        patch("app.api.v1.analyze.analyze_dummy", side_effect=RuntimeError("sensitive detail")),
+        patch(
+            "app.services.analysis.AnalysisService.analyze",
+            new=AsyncMock(side_effect=RuntimeError("sensitive detail")),
+        ),
         TestClient(app, raise_server_exceptions=False) as client,
     ):
         response = client.post(
@@ -120,18 +150,16 @@ def test_upload_is_closed_when_validation_fails() -> None:
         file=BytesIO(make_image()),
         headers=Headers({"content-type": "image/jpeg"}),
     )
-    request = cast(
-        Request,
-        SimpleNamespace(
-            app=SimpleNamespace(state=SimpleNamespace(settings=Settings(log_level="CRITICAL")))
-        ),
-    )
+    request, service = make_request()
 
     async def call_endpoint() -> None:
         with pytest.raises(ImageValidationError):
             await analyze_image(request, upload, "classification")
 
-    asyncio.run(call_endpoint())
+    try:
+        asyncio.run(call_endpoint())
+    finally:
+        service.close()
 
     assert upload.file.closed
 
@@ -142,14 +170,12 @@ def test_upload_is_closed_when_analysis_succeeds() -> None:
         file=BytesIO(make_image()),
         headers=Headers({"content-type": "image/jpeg"}),
     )
-    request = cast(
-        Request,
-        SimpleNamespace(
-            app=SimpleNamespace(state=SimpleNamespace(settings=Settings(log_level="CRITICAL")))
-        ),
-    )
+    request, service = make_request()
 
-    response = asyncio.run(analyze_image(request, upload, "detection"))
+    try:
+        response = asyncio.run(analyze_image(request, upload, "detection"))
+    finally:
+        service.close()
 
     assert response.success is True
     assert upload.file.closed

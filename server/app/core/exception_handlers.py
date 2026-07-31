@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 
 from app.core.logging import get_logger
 from app.schemas.analyze import AnalyzeErrorResponse, ErrorCode, ErrorDetail
+from app.services.analysis import ModelUnavailableError
 from app.services.image_validation import ImageValidationError
 
 logger = get_logger(__name__)
@@ -61,7 +62,24 @@ async def handle_unexpected_error(request: Request, exc: Exception) -> JSONRespo
     )
 
 
+async def handle_model_unavailable_error(
+    request: Request,
+    exc: ModelUnavailableError,
+) -> JSONResponse:
+    logger.error(
+        "Model kullanılamıyor | path=%s code=%s",
+        request.url.path,
+        ErrorCode.MODEL_UNAVAILABLE,
+    )
+    return _error_response(
+        ErrorCode.MODEL_UNAVAILABLE,
+        "Detection modeli kullanıma hazır değil.",
+        503,
+    )
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(ImageValidationError, handle_image_validation_error)
     app.add_exception_handler(RequestValidationError, handle_request_validation_error)
+    app.add_exception_handler(ModelUnavailableError, handle_model_unavailable_error)
     app.add_exception_handler(Exception, handle_unexpected_error)

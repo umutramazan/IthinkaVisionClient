@@ -35,8 +35,12 @@ htmlcov/
 
 # Model dosyaları (repoda tutulmaz)
 *.pt
+*.pth
 *.onnx
 *.engine
+*.tflite
+*.torchscript
+*.safetensors
 
 # Editör ve OS
 .DS_Store

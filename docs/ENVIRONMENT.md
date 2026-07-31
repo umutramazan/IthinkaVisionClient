@@ -46,6 +46,8 @@ FAZ 0 kapsamında doğrulanan ve kullanılan sürümler. Sürüm değiştiğinde
 | pydantic-settings | 2.14.2 |
 | python-multipart | 0.0.32 |
 | Pillow | 12.3.0 |
+| NumPy | 2.5.1 |
+| ONNX Runtime | 1.28.0 |
 | pytest | 9.1.1 |
 | httpx2 | 2.9.1 |
 | ruff | 0.16.0 |
@@ -57,6 +59,6 @@ FAZ 0 kapsamında doğrulanan ve kullanılan sürümler. Sürüm değiştiğinde
 - App Store / Play Store Expo Go SDK 54'tedir. SDK 55+ mağaza onayı beklediği için
   FAZ 0 cihaz testleri `blank-typescript@sdk-54` ile hizalanır.
 - React Native Testing Library 13 sürümünde `render` senkrondur.
-- Python 3.14 için `torch`, `onnxruntime` ve `ultralytics` wheel'leri mevcuttur;
-  FAZ 5'te runtime seçimi bu nedenle Python sürümüyle kısıtlanmamaktadır.
+- Python 3.14 için `torch`, `onnxruntime` ve `ultralytics` wheel'leri mevcuttur. FAZ 5 runtime'ı,
+  `best.onnx` artifact'ı için ONNX Runtime `1.28.0` ve CPU execution provider olarak seçilmiştir.
 - Expo SDK 54'te `newArchEnabled: true` app.json içinde geçerlidir.
