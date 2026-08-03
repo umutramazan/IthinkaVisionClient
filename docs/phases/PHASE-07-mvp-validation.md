@@ -9,6 +9,25 @@ Gerçek model kullanılan Android ve iOS uygulamalarını müşteri gösterimine
 - [FAZ 5](PHASE-05-detection-integration.md) tamamlanmış olmalı.
 - [FAZ 6](PHASE-06-observability.md) tamamlanmış olmalı.
 
+## Preview build yaklaşımı
+
+Expo Go geliştirme sırasında hızlı doğrulama için kullanılmaya devam eder. Teslim adayı kabulü ise
+native izinler, uygulama kimliği ve production benzeri paket davranışı görülebilsin diye EAS internal
+distribution ile oluşturulan Android ve iOS `preview` buildleri üzerinde yapılır.
+
+`preview` build yalnızca test dağıtımı içindir; mağazaya gönderilecek production artifact'ı değildir.
+Production build ve mağaza dağıtımı FAZ 9 kapsamındadır.
+
+## Build görevleri
+
+- [ ] Expo/EAS proje bağlantısını ve yetkili hesabı doğrula.
+- [ ] `eas.json` içinde ortak ayarlar ile `development`, `preview` ve `production` profillerini tanımla.
+- [ ] `preview` profilini internal distribution ve preview API ortamıyla yapılandır.
+- [ ] Android preview build oluştur ve gerçek cihaza kur.
+- [ ] iOS preview build oluştur, cihaz/provisioning gereksinimlerini tamamla ve gerçek cihaza kur.
+- [ ] Build kimliklerini, commit SHA değerini ve paylaşım bağlantılarını teslim notuna kaydet.
+- [ ] Preview artifact'larının secret veya yerel `.env` dosyası içermediğini doğrula.
+
 ## Fonksiyonel senaryolar
 
 - [ ] Kamera → Detection seç → analiz → sonuç.
@@ -43,6 +62,8 @@ Gerçek model kullanılan Android ve iOS uygulamalarını müşteri gösterimine
 | Sonuç kartları | [ ] | [ ] |
 | Hata mesajları | [ ] | [ ] |
 
+Platform matrisi Expo Go yerine ilgili platformun `preview` buildi üzerinde kapatılır.
+
 ## Kalite kontrolleri
 
 - [ ] Sunucu testlerinin tamamı geçiyor.
@@ -52,14 +73,19 @@ Gerçek model kullanılan Android ve iOS uygulamalarını müşteri gösterimine
 - [ ] Görseller işlem sonunda sunucuda kalmıyor.
 - [ ] Bilinen kısıtlar teslim notuna yazılmış.
 - [ ] Demo öncesi kullanılacak örnek görseller doğrulanmış.
+- [ ] Android ve iOS preview buildleri aynı commit'ten üretilmiş.
+- [ ] Preview buildlerin kullandığı API ortamı teslim notunda kayıtlı.
 
 ## MVP kabul kriteri
 
-Kullanıcı Android ve iOS gerçek cihazlarda kameradan veya galeriden görsel seçebilir, Detection modelini seçebilir, görseli sunucuya gönderebilir ve gerçek modelin sınıf/güven sonuçlarını anlaşılır arayüzde görebilir. Kritik hatalar uygulamayı kilitlemeden kullanıcı mesajına dönüşür.
+Kullanıcı aynı commit'ten üretilen Android ve iOS preview buildlerinde kameradan veya galeriden
+görsel seçebilir, Detection modelini seçebilir, görseli sunucuya gönderebilir ve gerçek modelin
+sınıf/güven sonuçlarını anlaşılır arayüzde görebilir. Kritik hatalar uygulamayı kilitlemeden kullanıcı
+mesajına dönüşür.
 
 ## Çıktılar
 
-- Android ve iOS teslim adayları
+- Android ve iOS preview teslim adayları
+- EAS build kimlikleri ve paylaşım bağlantıları
 - Test sonuçları
 - Bilinen kısıtlar ve demo notları
-

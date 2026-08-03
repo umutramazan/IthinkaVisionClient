@@ -13,6 +13,12 @@ FastAPI ve detection runtime'ını şirket sunucusuna taşınabilir, tekrar üre
 
 Şirket sunucusunda GPU bulunup bulunmadığı bilinmemektedir. Önce mevcut ortamda doğrulanan CPU image hazırlanabilir; hedef sunucu GPU sağlıyorsa ayrı GPU image/profile eklenir.
 
+## CI/CD sınırı
+
+Bu fazda Docker build, test ve yerel çalıştırma adımları önce manuel olarak uygulanır ve tekrar
+edilebilir komutlar halinde belgelenir. Registry'ye otomatik image gönderme ve pipeline otomasyonu
+[FAZ 10](PHASE-10-expansion.md) kapsamındadır.
+
 ## Görevler
 
 - [ ] Python ve native bağımlılık sürümlerini sabitle.
@@ -28,6 +34,7 @@ FastAPI ve detection runtime'ını şirket sunucusuna taşınabilir, tekrar üre
 - [ ] CPU/RAM limitleri ve inference concurrency değerlerini tanımla.
 - [ ] `docker-compose.yml` veya production compose tanımı oluştur.
 - [ ] GPU gerekiyorsa NVIDIA container runtime profilini ayrıca oluştur.
+- [ ] Manuel build, smoke test, başlatma ve durdurma komutlarını CI/CD girdisi olacak şekilde kaydet.
 
 ## Güvenlik kontrolleri
 
@@ -45,6 +52,7 @@ FastAPI ve detection runtime'ını şirket sunucusuna taşınabilir, tekrar üre
 - [ ] Container restart sonrasında model yükleme.
 - [ ] Geçici görsellerin container içinde kalmaması.
 - [ ] Bellek ve concurrency smoke testi.
+- [ ] Aynı commit ve model checksum'uyla image'ın tekrar üretilebildiğini doğrula.
 
 ## Tamamlanma kriteri
 
@@ -56,4 +64,4 @@ Sunucu temiz bir makinede belgelenmiş tek komutla başlayabiliyor, healthcheck 
 - `.dockerignore`
 - Compose tanımı
 - Model artifact yerleşim kararı
-
+- CI/CD otomasyonuna girdi olacak doğrulanmış manuel container komutları
