@@ -40,6 +40,7 @@ async def analyze_image(
     ],
 ) -> AnalyzeSuccessResponse:
     settings: Settings = request.app.state.settings
+    request.state.model_type = model_type
 
     try:
         validate_model_type(model_type)
@@ -49,14 +50,16 @@ async def analyze_image(
         if service is None:
             raise ModelUnavailableError
         result = await service.analyze(content)
+        request.state.detection_count = len(result.detections)
         logger.info(
-            (
-                "Analiz tamamlandı | model_type=detection mime_type=%s "
-                "size_bytes=%d detection_count=%d"
-            ),
-            image.content_type,
-            len(content),
-            len(result.detections),
+            "Analiz tamamlandı",
+            extra={
+                "event": "analysis_completed",
+                "endpoint": request.url.path,
+                "model_type": model_type,
+                "status": 200,
+                "detection_count": len(result.detections),
+            },
         )
         return result
     finally:

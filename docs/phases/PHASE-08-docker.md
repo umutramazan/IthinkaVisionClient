@@ -31,6 +31,8 @@ edilebilir komutlar halinde belgelenir. Registry'ye otomatik image gönderme ve 
 - [ ] Model artifact sürüm/checksum doğrulaması ekle.
 - [ ] Görseller için kalıcı volume bağlama; gerekiyorsa yalnızca geçici alan kullan.
 - [ ] Logları stdout/stderr'a yönlendir.
+- [ ] Hedef ortam için Docker logging driver'ını seç ve `max-size`/`max-file` benzeri sınırlarla
+  yerel log rotation yapılandır.
 - [ ] CPU/RAM limitleri ve inference concurrency değerlerini tanımla.
 - [ ] `docker-compose.yml` veya production compose tanımı oluştur.
 - [ ] GPU gerekiyorsa NVIDIA container runtime profilini ayrıca oluştur.
@@ -51,6 +53,7 @@ edilebilir komutlar halinde belgelenir. Registry'ye otomatik image gönderme ve 
 - [ ] Gerçek görselle analiz.
 - [ ] Container restart sonrasında model yükleme.
 - [ ] Geçici görsellerin container içinde kalmaması.
+- [ ] Log rotation sınırlarının çalıştığını ve container loglarının sınırsız disk tüketmediğini doğrula.
 - [ ] Bellek ve concurrency smoke testi.
 - [ ] Aynı commit ve model checksum'uyla image'ın tekrar üretilebildiğini doğrula.
 
@@ -64,4 +67,5 @@ Sunucu temiz bir makinede belgelenmiş tek komutla başlayabiliyor, healthcheck 
 - `.dockerignore`
 - Compose tanımı
 - Model artifact yerleşim kararı
+- Container logging driver ve yerel rotation ayarları
 - CI/CD otomasyonuna girdi olacak doğrulanmış manuel container komutları

@@ -109,7 +109,7 @@ Azure DevOps iş paketleri, saat eforları, review kapıları ve toplam takvim t
 | 3 | [Kamera ve Galeri](docs/phases/PHASE-03-image-acquisition.md) | Devam ediyor | Optimize edilmiş gerçek görsel |
 | 4 | [Dummy Uçtan Uca](docs/phases/PHASE-04-dummy-e2e.md) | Cihaz doğrulaması bekliyor | Mobil ↔ dummy API akışı |
 | 5 | [Gerçek Detection](docs/phases/PHASE-05-detection-integration.md) | Devam ediyor | Gerçek model sonucu |
-| 6 | [Gözlemlenebilirlik](docs/phases/PHASE-06-observability.md) | Başlanmadı | Güvenli teknik loglar |
+| 6 | [Gözlemlenebilirlik](docs/phases/PHASE-06-observability.md) | Tamamlandı | Güvenli teknik loglar |
 | 7 | [MVP Doğrulama](docs/phases/PHASE-07-mvp-validation.md) | Başlanmadı | Android+iOS preview teslim adayı |
 | 8 | [Docker](docs/phases/PHASE-08-docker.md) | Başlanmadı | Taşınabilir sunucu container'ı |
 | 9 | [Şirket Sunucusu](docs/phases/PHASE-09-deployment.md) | Başlanmadı | İlk production deployment ve mobil buildler |

@@ -4,13 +4,19 @@ import { ANALYZE_ENDPOINT } from '../constants/api';
 import { AnalyzeResponseError, analyzeImage } from '../services/analyzeService';
 import { getApiClient } from '../services/apiClient';
 import type { PickedImage } from '../types/image';
+import { logDevelopmentEvent } from '../utils/developmentLogger';
 
 jest.mock('../services/apiClient', () => ({
   getApiClient: jest.fn(),
 }));
 
+jest.mock('../utils/developmentLogger', () => ({
+  logDevelopmentEvent: jest.fn(),
+}));
+
 const mockGetApiClient = jest.mocked(getApiClient);
 const mockPost = jest.fn();
+const mockLogDevelopmentEvent = jest.mocked(logDevelopmentEvent);
 const originalFormData = globalThis.FormData;
 
 class TestFormData {
@@ -45,12 +51,15 @@ afterAll(() => {
 
 beforeEach(() => {
   mockPost.mockReset();
+  mockLogDevelopmentEvent.mockReset();
   mockGetApiClient.mockReturnValue({ post: mockPost } as unknown as AxiosInstance);
 });
 
 describe('analiz servisi', () => {
   it('görseli ve modeli multipart form ile gönderir', async () => {
     mockPost.mockResolvedValue({
+      status: 200,
+      headers: { 'x-request-id': 'server-request-id' },
       data: {
         success: true,
         detections: [{ class: 'Person', confidence: 0.96 }],
@@ -84,6 +93,16 @@ describe('analiz servisi', () => {
     ]);
     expect(config.signal).toBe(controller.signal);
     expect(config.headers).toBeUndefined();
+    expect(mockLogDevelopmentEvent).toHaveBeenNthCalledWith(1, 'info', 'analysis_started', {
+      model_type: 'detection',
+    });
+    expect(mockLogDevelopmentEvent).toHaveBeenNthCalledWith(2, 'info', 'analysis_completed', {
+      model_type: 'detection',
+      duration_ms: expect.any(Number),
+      detection_count: 1,
+      request_id: 'server-request-id',
+      status: 200,
+    });
   });
 
   it('dosya adı ve MIME türü yoksa JPEG varsayılanlarını kullanır', async () => {
@@ -112,12 +131,63 @@ describe('analiz servisi', () => {
         message: 'Geçersiz veya desteklenmeyen görsel.',
       },
     };
-    mockPost.mockResolvedValue({ data: errorResponse });
+    mockPost.mockResolvedValue({
+      data: errorResponse,
+      status: 400,
+      headers: { 'x-request-id': 'failed-request-id' },
+    });
 
     await expect(analyzeImage(image, 'detection')).rejects.toMatchObject({
       name: 'AnalyzeResponseError',
       message: errorResponse.error.message,
       response: errorResponse,
     } satisfies Partial<AnalyzeResponseError>);
+    expect(mockLogDevelopmentEvent).toHaveBeenLastCalledWith('error', 'analysis_failed', {
+      model_type: 'detection',
+      duration_ms: expect.any(Number),
+      error_code: 'INVALID_IMAGE',
+      request_id: 'failed-request-id',
+      status: 400,
+    });
+  });
+
+  it.each(['ECONNABORTED', 'ETIMEDOUT'])('%s hatasını timeout olarak loglar', async (code) => {
+    mockPost.mockRejectedValue({ isAxiosError: true, code });
+
+    await expect(analyzeImage(image, 'detection')).rejects.toMatchObject({ code });
+
+    expect(mockLogDevelopmentEvent).toHaveBeenLastCalledWith('warn', 'analysis_timeout', {
+      model_type: 'detection',
+      duration_ms: expect.any(Number),
+      error_code: code,
+      request_id: undefined,
+      status: undefined,
+    });
+  });
+
+  it('iptal edilen isteği hata yerine iptal olayı olarak loglar', async () => {
+    mockPost.mockRejectedValue({ isAxiosError: true, code: 'ERR_CANCELED' });
+
+    await expect(analyzeImage(image, 'detection')).rejects.toMatchObject({
+      code: 'ERR_CANCELED',
+    });
+
+    expect(mockLogDevelopmentEvent).toHaveBeenLastCalledWith('info', 'analysis_cancelled', {
+      model_type: 'detection',
+      duration_ms: expect.any(Number),
+      error_code: 'ERR_CANCELED',
+      request_id: undefined,
+      status: undefined,
+    });
+  });
+
+  it('development loglarına görsel URI veya dosya adı taşımaz', async () => {
+    mockPost.mockRejectedValue({ isAxiosError: true, code: 'ERR_NETWORK' });
+
+    await expect(analyzeImage(image, 'detection')).rejects.toBeDefined();
+
+    const serializedLogs = JSON.stringify(mockLogDevelopmentEvent.mock.calls);
+    expect(serializedLogs).not.toContain(image.uri);
+    expect(serializedLogs).not.toContain(image.fileName);
   });
 });

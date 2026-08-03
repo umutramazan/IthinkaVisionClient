@@ -4,6 +4,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import cast
 from unittest.mock import AsyncMock, patch
+from uuid import UUID
 
 import pytest
 from fastapi import Request, UploadFile
@@ -13,6 +14,7 @@ from starlette.datastructures import Headers
 
 from app.api.v1.analyze import analyze_image
 from app.config.settings import Settings
+from app.core.request_context import REQUEST_ID_HEADER
 from app.inference.base_model import BaseModel
 from app.main import create_app
 from app.schemas.analyze import Detection
@@ -44,7 +46,9 @@ def make_request() -> tuple[Request, AnalysisService]:
                     settings=Settings(log_level="CRITICAL"),
                     analysis_service=service,
                 )
-            )
+            ),
+            state=SimpleNamespace(),
+            url=SimpleNamespace(path="/api/v1/analyze"),
         ),
     )
     return request, service
@@ -125,6 +129,7 @@ def test_unexpected_error_does_not_leak_exception_details() -> None:
             "app.services.analysis.AnalysisService.analyze",
             new=AsyncMock(side_effect=RuntimeError("sensitive detail")),
         ),
+        patch("app.core.exception_handlers.logger.exception") as log_exception,
         TestClient(app, raise_server_exceptions=False) as client,
     ):
         response = client.post(
@@ -142,6 +147,16 @@ def test_unexpected_error_does_not_leak_exception_details() -> None:
         },
     }
     assert "sensitive detail" not in response.text
+    assert str(UUID(response.headers[REQUEST_ID_HEADER])) == response.headers[REQUEST_ID_HEADER]
+    log_extra = log_exception.call_args.kwargs["extra"]
+    assert log_extra.pop("request_id") == response.headers[REQUEST_ID_HEADER]
+    assert log_extra == {
+        "event": "request_failed",
+        "endpoint": "/api/v1/analyze",
+        "status": 500,
+        "error_code": "INTERNAL_ERROR",
+        "model_type": "detection",
+    }
 
 
 def test_upload_is_closed_when_validation_fails() -> None:
@@ -209,6 +224,13 @@ def test_successful_analysis_produces_technical_log(client: TestClient) -> None:
     assert response.status_code == 200
     log_info.assert_called_once()
     assert "private-name.jpg" not in str(log_info.call_args)
+    assert log_info.call_args.kwargs["extra"] == {
+        "event": "analysis_completed",
+        "endpoint": "/api/v1/analyze",
+        "model_type": "detection",
+        "status": 200,
+        "detection_count": 2,
+    }
 
 
 def test_failed_analysis_produces_technical_log(client: TestClient) -> None:
@@ -222,3 +244,12 @@ def test_failed_analysis_produces_technical_log(client: TestClient) -> None:
     assert response.status_code == 400
     log_warning.assert_called_once()
     assert "private-name.jpg" not in str(log_warning.call_args)
+    log_extra = log_warning.call_args.kwargs["extra"]
+    assert log_extra.pop("request_id") == response.headers[REQUEST_ID_HEADER]
+    assert log_extra == {
+        "event": "analysis_rejected",
+        "endpoint": "/api/v1/analyze",
+        "status": 400,
+        "error_code": "INVALID_MODEL_TYPE",
+        "model_type": "classification",
+    }

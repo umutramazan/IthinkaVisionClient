@@ -26,6 +26,15 @@ Bu fazda doğrulanan süreç [FAZ 10](PHASE-10-expansion.md) içinde CI/CD pipel
 - Beklenen eşzamanlı kullanıcı sayısı
 - Kurumun kimlik doğrulama ve log politikası
 
+## Production log işletimi
+
+Uygulama ve container tarafındaki temel [FAZ 6](PHASE-06-observability.md) ve
+[FAZ 8](PHASE-08-docker.md) kontrollerine ek olarak, deployment öncesinde kurumun mevcut log
+altyapısı öğrenilir. Merkezi bir sistem varsa container `stdout/stderr` logları bu sisteme aktarılır;
+yoksa erişimi sınırlandırılmış Docker logları, tanımlı rotation ve düzenli disk kontrolüyle işletilir.
+Her iki durumda da saklama süresi, erişebilen roller ve olay anında request ID ile inceleme yolu
+operasyon notuna kaydedilir. Görsel içeriği ve hassas header'lar hiçbir toplama hedefine gönderilmez.
+
 ## Görevler
 
 - [ ] Sunucu kapasitesini FAZ 5 benchmark sonuçlarıyla karşılaştır.
@@ -38,7 +47,8 @@ Bu fazda doğrulanan süreç [FAZ 10](PHASE-10-expansion.md) içinde CI/CD pipel
 - [ ] Rate limit ve eşzamanlı inference sınırı ekle.
 - [ ] Mobil production `EXPO_PUBLIC_API_BASE_URL` değerini ayarla.
 - [ ] Android ve iOS production buildlerini aynı release commit'inden oluştur.
-- [ ] Health, log ve disk kullanımı kontrolünü yapılandır.
+- [ ] Log toplama hedefini, saklama süresini ve erişim yetkilerini kaydet.
+- [ ] Health, container log rotation ve disk kullanımı kontrolünü yapılandır.
 - [ ] Rollback komutlarını ve önceki image etiketini kaydet.
 - [ ] Deployment girdilerini ve manuel komutları CI/CD otomasyonuna uygun teslim notunda kaydet.
 
@@ -51,6 +61,8 @@ Bu fazda doğrulanan süreç [FAZ 10](PHASE-10-expansion.md) içinde CI/CD pipel
 - [ ] Büyük dosya/rate limit kontrolü.
 - [ ] Container restart ve sunucu reboot sonrası açılış.
 - [ ] Görsellerin işlem sonrasında kalmadığının doğrulanması.
+- [ ] Request ID ile production loglarında başarılı ve hatalı bir isteği uçtan uca takip et.
+- [ ] Rotation sonrasında disk sınırının korunduğunu ve gerekli log inceleme yolunun çalıştığını doğrula.
 - [ ] Rollback denemesi.
 - [ ] Production buildlerin commit SHA, build numarası ve API ortamı eşleşmesini doğrula.
 
@@ -63,4 +75,5 @@ Android ve iOS uygulamaları şirket sunucusundaki gerçek modelden HTTPS üzeri
 - Çalışır production deployment
 - Production mobil config/buildleri
 - Operasyon ve rollback notu
+- Log toplama, saklama, erişim ve disk kontrolü kararı
 - FAZ 10 CI/CD otomasyonuna girdi olacak manuel release/deployment kaydı

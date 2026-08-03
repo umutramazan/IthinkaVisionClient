@@ -57,6 +57,7 @@ sürdürülebilir geliştirme altyapısını kurmak.
 - [ ] Registry, şirket sunucusu, Expo/EAS ve mağaza credential'larını environment secret olarak tut.
 - [ ] Şirket ağı dışarıdan erişilemiyorsa şirket içinde self-hosted runner/deployment agent kur.
 - [ ] Pipeline loglarında secret, model içeriği, görsel byte'ı veya hassas header bulunmadığını doğrula.
+- [ ] Container log rotation ve deployment log toplama ayarlarının beklenen değerlerde olduğunu doğrula.
 - [ ] Release, deployment, rollback ve sorumlu/onaylayan bilgilerini izlenebilir biçimde kaydet.
 
 ## CI/CD testleri
