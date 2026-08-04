@@ -39,6 +39,12 @@
           "microphonePermission": false
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "03fde56f-2aeb-41eb-8386-dd22816421c7"
+      }
+    },
+    "owner": "umutramazan"
   }
 }

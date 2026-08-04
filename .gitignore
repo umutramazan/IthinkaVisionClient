@@ -3,6 +3,7 @@
 .env.*
 !.env.example
 !.env.development.example
+!.env.preview.example
 !.env.production.example
 
 # Node

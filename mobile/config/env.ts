@@ -1,6 +1,6 @@
 /**
  * Ortam bağımlı değerler koda gömülmez; Expo'nun `EXPO_PUBLIC_*` değişkenleri üzerinden okunur.
- * Değerler `.env`, `.env.development` veya `.env.production` dosyalarından gelir.
+ * Değerler yerelde `.env` dosyasından, EAS buildlerinde ilgili environment üzerinden gelir.
  */
 
 const missingApiBaseUrlMessage =

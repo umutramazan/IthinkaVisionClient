@@ -20,13 +20,30 @@ Production build ve mağaza dağıtımı FAZ 9 kapsamındadır.
 
 ## Build görevleri
 
-- [ ] Expo/EAS proje bağlantısını ve yetkili hesabı doğrula.
-- [ ] `eas.json` içinde ortak ayarlar ile `development`, `preview` ve `production` profillerini tanımla.
-- [ ] `preview` profilini internal distribution ve preview API ortamıyla yapılandır.
+- [x] Expo/EAS proje bağlantısını ve yetkili hesabı doğrula.
+- [x] `eas.json` içinde ortak ayarlar ile `development`, `preview` ve `production` profillerini tanımla.
+- [x] `preview` profilini internal distribution ve preview API ortamıyla yapılandır.
 - [ ] Android preview build oluştur ve gerçek cihaza kur.
 - [ ] iOS preview build oluştur, cihaz/provisioning gereksinimlerini tamamla ve gerçek cihaza kur.
 - [ ] Build kimliklerini, commit SHA değerini ve paylaşım bağlantılarını teslim notuna kaydet.
 - [ ] Preview artifact'larının secret veya yerel `.env` dosyası içermediğini doğrula.
+
+### Ara doğrulama notları
+
+| Kontrol | Sonuç |
+|---|---|
+| Expo yapılandırması | SDK 54 public config başarıyla üretildi; iOS bundle ID ve Android package tanımlı |
+| Expo Doctor | 18/18 kontrol geçti |
+| Development build | SDK 54 uyumlu `expo-dev-client` `6.0.21` eklendi |
+| EAS profilleri | Ortak Node `24.18.0` ayarıyla development, preview ve production profilleri tanımlandı |
+| Ortam ayrımı | Profiller EAS `development`, `preview` ve `production` environment'larına açıkça bağlandı |
+| Preview dağıtımı | `preview` profili internal distribution olarak tanımlandı |
+| Preview API ortamı | `EXPO_PUBLIC_API_BASE_URL`, şirket sunucusu öncesi doğrulama için EAS `preview` environment'ına özel LAN adresiyle kaydedildi |
+| Yerel ortam güvenliği | Gerçek `.env` Git dışında; yalnızca değer içermeyen preview şablonu version control'e açık |
+| Mobil kalite kontrolü | Type-check, ESLint ve Prettier temiz; 71 test geçti |
+| EAS hesap kontrolü | `umutramazan` kişisel hesabında yetkili oturum doğrulandı |
+| EAS proje bağlantısı | `@umutramazan/ithinka-vision`, proje ID `03fde56f-2aeb-41eb-8386-dd22816421c7` ile bağlandı |
+| Teslim notu | [FAZ 7 preview teslim notu](../releases/PHASE-07-preview.md) oluşturuldu |
 
 ## Fonksiyonel senaryolar
 

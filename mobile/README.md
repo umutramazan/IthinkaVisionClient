@@ -42,14 +42,18 @@ npm run ios      # Yalnızca macOS
 
 ## Ortam değişkenleri
 
-Expo yalnızca `EXPO_PUBLIC_` önekli değişkenleri istemciye aktarır. Development ve production
+Expo yalnızca `EXPO_PUBLIC_` önekli değişkenleri istemciye aktarır. Development, preview ve production
 aynı `EXPO_PUBLIC_API_BASE_URL` anahtarını farklı değerlerle kullanır:
 
 - Development değeri `.env.local` içindeki bilgisayar LAN adresidir.
+- Preview değeri EAS `preview` environment'ında tanımlanır. Şirket sunucusu hazır olana kadar aynı
+  ağdaki geliştirme bilgisayarının LAN adresi, sonrasında test sunucusunun HTTPS adresi kullanılabilir.
 - Production değeri build ortamından verilen şirket sunucusunun HTTPS adresidir.
 
-Şablonlar `.env.development.example` ve `.env.production.example` dosyalarındadır. Gerçek `.env`
-dosyaları version control'e girmez; adresler koda gömülmez ve `config/env.ts` üzerinden okunur.
+Şablonlar `.env.development.example`, `.env.preview.example` ve `.env.production.example`
+dosyalarındadır. Gerçek `.env` dosyaları version control'e girmez; adresler koda gömülmez ve
+`config/env.ts` üzerinden okunur. EAS build profilleri ilgili `development`, `preview` veya `production`
+environment'ındaki değeri kullanır.
 
 ## Klasör yapısı
 
