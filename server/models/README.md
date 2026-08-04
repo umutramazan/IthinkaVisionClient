@@ -1,16 +1,19 @@
 # Detection model files
 
-Gerçek model dosyasını bu klasöre yerleştirin. Örnek:
+Sunucunun kullandığı ONNX model dosyasını bu klasöre yerleştirin:
 
 ```text
-server/models/best.pt
+server/models/best.onnx
 ```
 
 Model dosyaları büyük veya kuruma özel olabileceği için version control'e eklenmez. Repository
-yalnızca bu açıklama dosyasını tutar. Model yolu Phase 5 sırasında `APP_MODEL_PATH` ortam
-değişkeniyle yapılandırılacaktır.
+yalnızca bu açıklama dosyasını tutar. Aktif geliştirme runtime'ı ONNX Runtime `1.28.0` ve
+`CPUExecutionProvider` olarak belirlenmiştir. Model yolu `APP_MODEL_PATH` ortam değişkeniyle
+yapılandırılır; varsayılan değer `models/best.onnx` dosyasıdır.
 
-Desteklenecek kesin runtime ve dosya adı, model incelendikten sonra belirlenecektir.
+Kaynak `best.pt` dosyası model envanteri ve gerektiğinde yeniden export için korunur; FastAPI inference
+akışında doğrudan kullanılmaz. Hedef şirket sunucusunun donanımı öğrenildiğinde CPU/GPU provider seçimi
+yeniden doğrulanacaktır.
 
 ## Yerel model envanteri
 
