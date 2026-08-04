@@ -41,6 +41,14 @@
           "cameraPermission": "Analiz edilecek fotoğrafı çekebilmek için kamera erişimi gereklidir.",
           "microphonePermission": false
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
       ]
     ],
     "extra": {
