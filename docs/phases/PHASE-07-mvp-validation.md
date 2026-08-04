@@ -18,6 +18,14 @@ distribution ile oluşturulan Android ve iOS `preview` buildleri üzerinde yapı
 `preview` build yalnızca test dağıtımı içindir; mağazaya gönderilecek production artifact'ı değildir.
 Production build ve mağaza dağıtımı FAZ 9 kapsamındadır.
 
+### Geçici iOS doğrulama yaklaşımı
+
+Apple Developer Program üyeliği ve macOS geliştirme ortamı bulunmadığı sürece gerçek iPhone'a özel
+ad hoc `preview` binary kurulamaz. Bu nedenle iOS fonksiyonel doğrulamaları geçici olarak Expo Go ve
+aynı ağdaki LAN API üzerinden yürütülür. Bu kontroller cihaz davranışını doğrular ancak aşağıdaki iOS
+preview build görevinin yerine geçmez; signing/provisioning imkânı sağlandığında ilgili kabul matrisi
+internal distribution buildi üzerinde yeniden kapatılır.
+
 ## Build görevleri
 
 - [x] Expo/EAS proje bağlantısını ve yetkili hesabı doğrula.
@@ -43,28 +51,31 @@ Production build ve mağaza dağıtımı FAZ 9 kapsamındadır.
 | Mobil kalite kontrolü | Type-check, ESLint ve Prettier temiz; 71 test geçti |
 | EAS hesap kontrolü | `umutramazan` kişisel hesabında yetkili oturum doğrulandı |
 | EAS proje bağlantısı | `@umutramazan/ithinka-vision`, proje ID `03fde56f-2aeb-41eb-8386-dd22816421c7` ile bağlandı |
+| iOS build hazırlığı | Export compliance değeri özel/non-exempt şifreleme kullanılmadığı için `false`; build numarası kaynağı EAS remote olarak tanımlandı |
+| iOS preview build engeli | Apple Developer Program üyeliği ve macOS ortamı yok; ad hoc signing/provisioning oluşturulamadı |
+| Geçici iOS cihaz yaklaşımı | Expo Go ve aynı ağdaki LAN API ile fonksiyonel smoke testleri yürütülecek; preview build maddesi açık kalacak |
 | Teslim notu | [FAZ 7 preview teslim notu](../releases/PHASE-07-preview.md) oluşturuldu |
 
 ## Fonksiyonel senaryolar
 
-- [ ] Kamera → Detection seç → analiz → sonuç.
-- [ ] Galeri → Detection seç → analiz → sonuç.
-- [ ] Aynı sınıftan birden fazla sonuç.
-- [ ] Hiç nesne bulunmayan sonuç.
-- [ ] Görseli değiştirip yeniden analiz.
-- [ ] Arka arkaya birden fazla analiz.
+- [x] Kamera → Detection seç → analiz → sonuç.
+- [x] Galeri → Detection seç → analiz → sonuç.
+- [x] Aynı sınıftan birden fazla sonuç.
+- [x] Hiç nesne bulunmayan sonuç.
+- [x] Görseli değiştirip yeniden analiz.
+- [x] Arka arkaya birden fazla analiz.
 
 ## Hata senaryoları
 
-- [ ] Kamera izni reddi.
-- [ ] Kullanıcının seçimden vazgeçmesi.
-- [ ] Görsel seçmeden gönderim.
-- [ ] Model seçmeden gönderim.
-- [ ] Sunucunun kapalı olması.
-- [ ] Yavaş bağlantı ve istemci timeout.
-- [ ] Geçersiz veya büyük dosya.
-- [ ] Sunucu inference hatası.
-- [ ] Uygulamanın analiz sırasında arka plana alınması.
+- [x] Kamera izni reddi.
+- [x] Kullanıcının seçimden vazgeçmesi.
+- [x] Görsel seçmeden gönderim.
+- [x] Model seçmeden gönderim.
+- [x] Sunucunun kapalı olması.
+- [x] Yavaş bağlantı ve istemci timeout.
+- [x] Geçersiz veya büyük dosya.
+- [x] Sunucu inference hatası.
+- [x] Uygulamanın analiz sırasında arka plana alınması.
 
 ## Platform matrisi
 
@@ -83,13 +94,13 @@ Platform matrisi Expo Go yerine ilgili platformun `preview` buildi üzerinde kap
 
 ## Kalite kontrolleri
 
-- [ ] Sunucu testlerinin tamamı geçiyor.
-- [ ] Mobil unit/component testlerinin tamamı geçiyor.
-- [ ] Lint ve type-check geçiyor.
-- [ ] Ham JSON kullanıcıya gösterilmiyor.
-- [ ] Görseller işlem sonunda sunucuda kalmıyor.
-- [ ] Bilinen kısıtlar teslim notuna yazılmış.
-- [ ] Demo öncesi kullanılacak örnek görseller doğrulanmış.
+- [x] Sunucu testlerinin tamamı geçiyor.
+- [x] Mobil unit/component testlerinin tamamı geçiyor.
+- [x] Lint ve type-check geçiyor.
+- [x] Ham JSON kullanıcıya gösterilmiyor.
+- [x] Görseller işlem sonunda sunucuda kalmıyor.
+- [x] Bilinen kısıtlar teslim notuna yazılmış.
+- [x] Demo öncesi kullanılacak örnek görseller doğrulanmış.
 - [ ] Android ve iOS preview buildleri aynı commit'ten üretilmiş.
 - [ ] Preview buildlerin kullandığı API ortamı teslim notunda kayıtlı.
 
