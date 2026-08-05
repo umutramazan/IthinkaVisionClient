@@ -55,6 +55,26 @@ dosyalarındadır. Gerçek `.env` dosyaları version control'e girmez; adresler 
 `config/env.ts` üzerinden okunur. EAS build profilleri ilgili `development`, `preview` veya `production`
 environment'ındaki değeri kullanır.
 
+## EAS Update
+
+Android ve iOS buildleri `development`, `preview` ve `production` kanallarıyla birbirinden ayrılır.
+Native uyumluluk `fingerprint` runtime policy ile otomatik hesaplanır. Preview build ile uyumlu
+JavaScript, stil ve asset değişikliklerini yayımlamak için:
+
+```powershell
+npx eas-cli@latest update `
+  --channel preview `
+  --environment preview `
+  --message "Preview güncellemesi"
+```
+
+Preview veya production build, uyumlu güncellemeyi uygulama açıldığında arka planda indirir ve sonraki
+yeniden başlatmada uygular. Production kanalına yalnızca preview ortamında doğrulanan commit yayımlanır.
+
+Uygulama ikonu, native izinler, config plugin ayarları, native paketler veya Expo SDK değiştiğinde OTA
+update yerine yeni Android/iOS buildi üretilir. Yeni build yeni fingerprint runtime'ıyla kendi uyumlu
+update akışını başlatır.
+
 ## Klasör yapısı
 
 ```text
