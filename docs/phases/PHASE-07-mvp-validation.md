@@ -31,9 +31,10 @@ internal distribution buildi üzerinde yeniden kapatılır.
 - [x] Expo/EAS proje bağlantısını ve yetkili hesabı doğrula.
 - [x] `eas.json` içinde ortak ayarlar ile `development`, `preview` ve `production` profillerini tanımla.
 - [x] `preview` profilini internal distribution ve preview API ortamıyla yapılandır.
-- [ ] Android preview build oluştur ve gerçek cihaza kur.
+- [x] Android preview build oluştur, emülatöre kur ve LAN API smoke testini tamamla.
+- [ ] Android preview buildi gerçek cihaza kur ve doğrula.
 - [ ] iOS preview build oluştur, cihaz/provisioning gereksinimlerini tamamla ve gerçek cihaza kur.
-- [ ] Build kimliklerini, commit SHA değerini ve paylaşım bağlantılarını teslim notuna kaydet.
+- [x] Üretilen Android build kimliklerini, commit SHA değerlerini ve paylaşım bağlantılarını teslim notuna kaydet.
 - [ ] Preview artifact'larının secret veya yerel `.env` dosyası içermediğini doğrula.
 
 ### Ara doğrulama notları
@@ -47,6 +48,8 @@ internal distribution buildi üzerinde yeniden kapatılır.
 | Ortam ayrımı | Profiller EAS `development`, `preview` ve `production` environment'larına açıkça bağlandı |
 | Preview dağıtımı | `preview` profili internal distribution olarak tanımlandı |
 | Preview API ortamı | `EXPO_PUBLIC_API_BASE_URL`, şirket sunucusu öncesi doğrulama için EAS `preview` environment'ına özel LAN adresiyle kaydedildi |
+| Android preview build | Düzeltilmiş APK Android 16 / API 36 Pixel 8 emülatörüne kuruldu; LAN API üzerinden gerçek model sonucu görüntülendi |
+| Android LAN HTTP | SDK 54 `expo-build-properties` ile preview APK'nin geçici LAN HTTP API'sine erişimi doğrulandı |
 | Yerel ortam güvenliği | Gerçek `.env` Git dışında; yalnızca değer içermeyen preview şablonu version control'e açık |
 | Mobil kalite kontrolü | Type-check, ESLint ve Prettier temiz; 71 test geçti |
 | EAS hesap kontrolü | `umutramazan` kişisel hesabında yetkili oturum doğrulandı |
@@ -102,7 +105,7 @@ Platform matrisi Expo Go yerine ilgili platformun `preview` buildi üzerinde kap
 - [x] Bilinen kısıtlar teslim notuna yazılmış.
 - [x] Demo öncesi kullanılacak örnek görseller doğrulanmış.
 - [ ] Android ve iOS preview buildleri aynı commit'ten üretilmiş.
-- [ ] Preview buildlerin kullandığı API ortamı teslim notunda kayıtlı.
+- [x] Preview buildlerin kullandığı API ortamı teslim notunda kayıtlı.
 
 ## MVP kabul kriteri
 

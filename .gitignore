@@ -15,6 +15,10 @@ yarn-error.log*
 .expo/
 dist/
 web-build/
+*.apk
+*.aab
+*.ipa
+*.apks
 *.jks
 *.p8
 *.p12

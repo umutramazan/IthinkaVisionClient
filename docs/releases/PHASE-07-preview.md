@@ -2,9 +2,10 @@
 
 ## Durum
 
-Devam ediyor. EAS proje bağlantısı ve preview build yapılandırması tamamlandı. Apple Developer Program
-üyeliği ve macOS ortamı bulunmadığından iOS ad hoc preview build üretimi bekliyor; geçici iOS gerçek
-cihaz doğrulamaları Expo Go ile yürütülüyor. Android gerçek cihaz doğrulamaları ertelendi.
+Devam ediyor. EAS proje bağlantısı ve preview build yapılandırması tamamlandı. Android preview APK
+Android 16 / API 36 emülatöründe LAN API ile doğrulandı; gerçek Android cihaz doğrulaması ertelendi.
+Apple Developer Program üyeliği ve macOS ortamı bulunmadığından iOS ad hoc preview build üretimi
+bekliyor; geçici iOS gerçek cihaz doğrulamaları Expo Go ile yürütülüyor.
 
 ## EAS projesi
 
@@ -26,7 +27,19 @@ değiştirilecektir.
 | Platform | Durum | Build ID | Kaynak commit | Paylaşım bağlantısı |
 |---|---|---|---|---|
 | iOS | Bekliyor | — | — | — |
-| Android | Ertelendi | — | — | — |
+| Android | Geçersiz kılındı — LAN HTTP engeli | `2d9cc941-920d-452d-a458-93db5cbeb97a` | `1c39085a5db8fcd08c19891503e7bf0412512936` | [EAS build](https://expo.dev/accounts/umutramazan/projects/ithinka-vision/builds/2d9cc941-920d-452d-a458-93db5cbeb97a) |
+| Android | Emülatör smoke testi geçti | `ef11fd58-f76b-4579-b7ad-0cebbe206695` | `8874bfa793f5082d9b52b2f5184aa36ea436e818` | [EAS build](https://expo.dev/accounts/umutramazan/projects/ithinka-vision/builds/ef11fd58-f76b-4579-b7ad-0cebbe206695) |
+
+## Android preview emülatör doğrulaması
+
+| Kontrol | Sonuç |
+|---|---|
+| Tarih ve ortam | 2026-08-05, Pixel 8 emülatörü, Android 16 / API 36, EAS internal preview APK |
+| Kurulum | Düzeltilmiş APK `com.ithinka.vision` paketine kuruldu ve başarıyla açıldı |
+| Preview API | EAS `preview` environment'ındaki LAN API adresi ve port `8000` kullanıldı |
+| LAN HTTP davranışı | İlk aday Android'in varsayılan cleartext politikası nedeniyle istek gönderemedi; düzeltilmiş buildde LAN erişimi doğrulandı |
+| Gerçek model analizi | Galeriden seçilen görsel sunucuya gönderildi ve sonuç uygulama arayüzünde görüntülendi |
+| Kapsam sınırı | Bu kayıt emülatör smoke testidir; gerçek Android cihaz kabulünün yerine geçmez |
 
 ## Otomatik doğrulamalar
 
@@ -63,7 +76,7 @@ Bu tablo geçici fonksiyonel cihaz kanıtıdır; ad hoc internal preview artifac
 - Preview API yalnızca telefon ile geliştirme bilgisayarı aynı ağdayken erişilebilir.
 - FastAPI `0.0.0.0:8000` üzerinde çalışıyor olmalıdır.
 - Geçici LAN bağlantısı HTTP kullanır; production veya dış ağ dağıtımı için uygun değildir.
-- Android gerçek cihaz ve Android preview build doğrulamaları ertelenmiştir.
+- Android preview build emülatörde doğrulanmıştır; gerçek Android cihaz doğrulaması ertelenmiştir.
 - Apple Developer Program üyeliği ve macOS ortamı bulunmadığı için iOS ad hoc signing/provisioning
   oluşturulamamıştır. Expo Go cihaz kontrolleri bağımsız iOS preview artifact kabulünün yerine geçmez.
 - npm audit içinde Expo SDK 54 araç zincirinden gelen bir yüksek ve orta seviye transitif bağımlılık
