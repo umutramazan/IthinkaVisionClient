@@ -32,6 +32,7 @@ internal distribution buildi üzerinde yeniden kapatılır.
 - [x] `eas.json` içinde ortak ayarlar ile `development`, `preview` ve `production` profillerini tanımla.
 - [x] `preview` profilini internal distribution ve preview API ortamıyla yapılandır.
 - [x] Android preview build oluştur, emülatöre kur ve LAN API smoke testini tamamla.
+- [x] `preview` kanalında EAS Update ileri/temizleme akışını Android preview APK üzerinde doğrula.
 - [ ] Android preview buildi gerçek cihaza kur ve doğrula.
 - [ ] iOS preview build oluştur, cihaz/provisioning gereksinimlerini tamamla ve gerçek cihaza kur.
 - [x] Üretilen Android build kimliklerini, commit SHA değerlerini ve paylaşım bağlantılarını teslim notuna kaydet.
@@ -39,25 +40,28 @@ internal distribution buildi üzerinde yeniden kapatılır.
 
 ### Ara doğrulama notları
 
-| Kontrol | Sonuç |
-|---|---|
-| Expo yapılandırması | SDK 54 public config başarıyla üretildi; iOS bundle ID ve Android package tanımlı |
-| Expo Doctor | 18/18 kontrol geçti |
-| Development build | SDK 54 uyumlu `expo-dev-client` `6.0.21` eklendi |
-| EAS profilleri | Ortak Node `24.18.0` ayarıyla development, preview ve production profilleri tanımlandı |
-| Ortam ayrımı | Profiller EAS `development`, `preview` ve `production` environment'larına açıkça bağlandı |
-| Preview dağıtımı | `preview` profili internal distribution olarak tanımlandı |
-| Preview API ortamı | `EXPO_PUBLIC_API_BASE_URL`, şirket sunucusu öncesi doğrulama için EAS `preview` environment'ına özel LAN adresiyle kaydedildi |
-| Android preview build | Düzeltilmiş APK Android 16 / API 36 Pixel 8 emülatörüne kuruldu; LAN API üzerinden gerçek model sonucu görüntülendi |
-| Android LAN HTTP | SDK 54 `expo-build-properties` ile preview APK'nin geçici LAN HTTP API'sine erişimi doğrulandı |
-| Yerel ortam güvenliği | Gerçek `.env` Git dışında; yalnızca değer içermeyen preview şablonu version control'e açık |
-| Mobil kalite kontrolü | Type-check, ESLint ve Prettier temiz; 71 test geçti |
-| EAS hesap kontrolü | `umutramazan` kişisel hesabında yetkili oturum doğrulandı |
-| EAS proje bağlantısı | `@umutramazan/ithinka-vision`, proje ID `03fde56f-2aeb-41eb-8386-dd22816421c7` ile bağlandı |
-| iOS build hazırlığı | Export compliance değeri özel/non-exempt şifreleme kullanılmadığı için `false`; build numarası kaynağı EAS remote olarak tanımlandı |
-| iOS preview build engeli | Apple Developer Program üyeliği ve macOS ortamı yok; ad hoc signing/provisioning oluşturulamadı |
-| Geçici iOS cihaz yaklaşımı | Expo Go ve aynı ağdaki LAN API ile fonksiyonel smoke testleri yürütülecek; preview build maddesi açık kalacak |
-| Teslim notu | [FAZ 7 preview teslim notu](../releases/PHASE-07-preview.md) oluşturuldu |
+| Kontrol                     | Sonuç                                                                                                                                                   |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Expo yapılandırması         | SDK 54 public config başarıyla üretildi; iOS bundle ID ve Android package tanımlı                                                                       |
+| Expo Doctor                 | 18/18 kontrol geçti                                                                                                                                     |
+| Development build           | SDK 54 uyumlu `expo-dev-client` `6.0.21` eklendi                                                                                                        |
+| EAS profilleri              | Ortak Node `24.18.0` ayarıyla development, preview ve production profilleri tanımlandı                                                                  |
+| Ortam ayrımı                | Profiller EAS `development`, `preview` ve `production` environment'larına açıkça bağlandı                                                               |
+| Preview dağıtımı            | `preview` profili internal distribution olarak tanımlandı                                                                                               |
+| Preview API ortamı          | `EXPO_PUBLIC_API_BASE_URL`, şirket sunucusu öncesi doğrulama için EAS `preview` environment'ına özel LAN adresiyle kaydedildi                           |
+| Android preview build       | Runtime `0.1.1` APK Android 16 / API 36 Pixel 8 emülatörüne kuruldu; LAN API sonucu ile adaptive ikon ve açık/koyu splash görünümü doğrulandı           |
+| Android LAN HTTP            | SDK 54 `expo-build-properties` ile preview APK'nin geçici LAN HTTP API'sine erişimi doğrulandı                                                          |
+| EAS Update                  | `preview` kanalındaki runtime `0.1.1` güncellemesi yeni APK alınmadan uygulandı; görünür test etiketi geldi ve temizleme güncellemesiyle kaldırıldı     |
+| EAS Update platform kapsamı | Android ve iOS bundle'ları aynı update group'larda yayımlandı; Android uygulama testi geçti, iOS uygulama testi preview build engeli nedeniyle bekliyor |
+| Mobil marka varlıkları      | Android adaptive icon ile açık/koyu splash emülatörde doğrulandı; eş ölçekli iOS ikonu yapılandırıldı ancak iOS build üzerinde doğrulanmadı             |
+| Yerel ortam güvenliği       | Gerçek `.env` Git dışında; yalnızca değer içermeyen preview şablonu version control'e açık                                                              |
+| Mobil kalite kontrolü       | Type-check, ESLint ve Prettier temiz; 71 test geçti                                                                                                     |
+| EAS hesap kontrolü          | `umutramazan` kişisel hesabında yetkili oturum doğrulandı                                                                                               |
+| EAS proje bağlantısı        | `@umutramazan/ithinka-vision`, proje ID `03fde56f-2aeb-41eb-8386-dd22816421c7` ile bağlandı                                                             |
+| iOS build hazırlığı         | Export compliance değeri özel/non-exempt şifreleme kullanılmadığı için `false`; build numarası kaynağı EAS remote olarak tanımlandı                     |
+| iOS preview build engeli    | Apple Developer Program üyeliği ve macOS ortamı yok; ad hoc signing/provisioning oluşturulamadı                                                         |
+| Geçici iOS cihaz yaklaşımı  | Expo Go ve aynı ağdaki LAN API ile fonksiyonel smoke testleri yürütülecek; preview build maddesi açık kalacak                                           |
+| Teslim notu                 | [FAZ 7 preview teslim notu](../releases/PHASE-07-preview.md) oluşturuldu                                                                                |
 
 ## Fonksiyonel senaryolar
 
@@ -82,16 +86,16 @@ internal distribution buildi üzerinde yeniden kapatılır.
 
 ## Platform matrisi
 
-| Kontrol | Android | iOS |
-|---|---:|---:|
-| Kamera | [ ] | [ ] |
-| Galeri | [ ] | [ ] |
-| İzin reddi | [ ] | [ ] |
-| Görsel optimizasyonu | [ ] | [ ] |
-| Model seçimi | [ ] | [ ] |
-| Loading | [ ] | [ ] |
-| Sonuç kartları | [ ] | [ ] |
-| Hata mesajları | [ ] | [ ] |
+| Kontrol              | Android | iOS |
+| -------------------- | ------: | --: |
+| Kamera               |     [ ] | [ ] |
+| Galeri               |     [ ] | [ ] |
+| İzin reddi           |     [ ] | [ ] |
+| Görsel optimizasyonu |     [ ] | [ ] |
+| Model seçimi         |     [ ] | [ ] |
+| Loading              |     [ ] | [ ] |
+| Sonuç kartları       |     [ ] | [ ] |
+| Hata mesajları       |     [ ] | [ ] |
 
 Platform matrisi Expo Go yerine ilgili platformun `preview` buildi üzerinde kapatılır.
 
