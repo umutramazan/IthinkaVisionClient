@@ -58,7 +58,7 @@ environment'ındaki değeri kullanır.
 ## EAS Update
 
 Android ve iOS buildleri `development`, `preview` ve `production` kanallarıyla birbirinden ayrılır.
-Native uyumluluk `fingerprint` runtime policy ile otomatik hesaplanır. Preview build ile uyumlu
+Native uyumluluk `appVersion` runtime policy ile yönetilir. Preview build ile uyumlu
 JavaScript, stil ve asset değişikliklerini yayımlamak için:
 
 ```powershell
@@ -72,8 +72,8 @@ Preview veya production build, uyumlu güncellemeyi uygulama açıldığında ar
 yeniden başlatmada uygular. Production kanalına yalnızca preview ortamında doğrulanan commit yayımlanır.
 
 Uygulama ikonu, native izinler, config plugin ayarları, native paketler veya Expo SDK değiştiğinde OTA
-update yerine yeni Android/iOS buildi üretilir. Yeni build yeni fingerprint runtime'ıyla kendi uyumlu
-update akışını başlatır.
+update yerine uygulama sürümü artırılır ve yeni Android/iOS buildi üretilir. Yeni uygulama sürümü kendi
+uyumlu update akışını başlatır.
 
 ## Klasör yapısı
 

@@ -54,7 +54,7 @@
     },
     "owner": "umutramazan",
     "runtimeVersion": {
-      "policy": "fingerprint"
+      "policy": "appVersion"
     },
     "updates": {
       "url": "https://u.expo.dev/03fde56f-2aeb-41eb-8386-dd22816421c7"
