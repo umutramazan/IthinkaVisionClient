@@ -2,16 +2,12 @@
   "expo": {
     "name": "iThinka Vision",
     "slug": "ithinka-vision",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "orientation": "portrait",
     "icon": "./assets/ithinka-app-icon.png",
+    "primaryColor": "#FFFFFF",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "icon": "./assets/ithinka-app-icon.png",
       "supportsTablet": true,
@@ -22,6 +18,10 @@
     },
     "android": {
       "icon": "./assets/ithinka-app-icon.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/ithinka-adaptive-foreground.png",
+        "backgroundColor": "#FFFFFF"
+      },
       "package": "com.ithinka.vision",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
@@ -30,6 +30,19 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/ithinka-splash-light.png",
+          "imageWidth": 260,
+          "resizeMode": "contain",
+          "backgroundColor": "#FFFFFF",
+          "dark": {
+            "image": "./assets/ithinka-splash-dark.png",
+            "backgroundColor": "#171717"
+          }
+        }
+      ],
       [
         "expo-image-picker",
         {
