@@ -160,7 +160,6 @@ export function HomeScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.eyebrow}>{messages.appName}</Text>
-          <Text style={styles.otaTestLabel}>{messages.otaTestLabel}</Text>
           <Text style={styles.heroTitle}>{messages.heroTitle}</Text>
           <Text style={styles.heroDescription}>{messages.heroDescription}</Text>
         </View>
@@ -251,11 +250,6 @@ function createStyles(colors: ThemeColors) {
       color: colors.primary,
       letterSpacing: 0.8,
       textTransform: 'uppercase',
-    },
-    otaTestLabel: {
-      ...typography.label,
-      marginTop: spacing.xs,
-      color: colors.info,
     },
     heroTitle: { ...typography.hero, maxWidth: 560, marginTop: spacing.sm, color: colors.text },
     heroDescription: {

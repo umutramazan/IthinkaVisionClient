@@ -1,6 +1,5 @@
 export const messages = {
   appName: 'iThinka Vision',
-  otaTestLabel: 'OTA TEST 0.1.1',
   heroTitle: 'Görselinizi saniyeler içinde değerlendirin',
   heroDescription:
     'Kameradan çekin veya galeriden seçin; yapay zekâ sonuçlarını anlaşılır kartlarda görün.',
