@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "icon": "./assets/ithinka-app-icon.png",
+      "icon": "./assets/ithinka-ios-icon.png",
       "supportsTablet": true,
       "bundleIdentifier": "com.ithinka.vision",
       "infoPlist": {
