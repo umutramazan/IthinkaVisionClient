@@ -10,6 +10,7 @@ from app.core.logging import (
     DevelopmentFormatter,
     ProductionJsonFormatter,
     RequestContextFilter,
+    SuccessfulHealthcheckFilter,
     configure_logging,
 )
 
@@ -82,6 +83,27 @@ def test_request_context_filter_uses_placeholder_outside_request() -> None:
 
     assert RequestContextFilter().filter(record) is True
     assert record.request_id == "-"
+
+
+def make_access_record(path: str, status: int) -> logging.LogRecord:
+    return logging.LogRecord(
+        name="uvicorn.access",
+        level=logging.INFO,
+        pathname=__file__,
+        lineno=1,
+        msg='%s - "%s %s HTTP/%s" %d',
+        args=("127.0.0.1:1234", "GET", path, "1.1", status),
+        exc_info=None,
+    )
+
+
+def test_successful_healthcheck_filter_suppresses_only_successful_health_access() -> None:
+    log_filter = SuccessfulHealthcheckFilter()
+
+    assert log_filter.filter(make_access_record("/health/live", 200)) is False
+    assert log_filter.filter(make_access_record("/health/ready?probe=1", 200)) is False
+    assert log_filter.filter(make_access_record("/health/ready", 503)) is True
+    assert log_filter.filter(make_access_record("/api/v1/analyze", 200)) is True
 
 
 @pytest.mark.parametrize(

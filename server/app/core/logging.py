@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from logging.config import dictConfig
 from typing import Any, Literal
 
-from app.core.request_context import get_request_id
+from app.core.request_context import HEALTHCHECK_PATHS, get_request_id
 
 LogEnvironment = Literal["development", "production"]
 
@@ -31,6 +31,22 @@ class RequestContextFilter(logging.Filter):
         if not hasattr(record, "request_id"):
             record.request_id = get_request_id() or "-"
         return True
+
+
+class SuccessfulHealthcheckFilter(logging.Filter):
+    """Başarılı healthcheck access kayıtlarını production log gürültüsünden çıkarır."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if record.name != "uvicorn.access" or not isinstance(record.args, tuple):
+            return True
+
+        try:
+            path = str(record.args[2]).partition("?")[0]
+            status = int(record.args[4])
+        except (IndexError, TypeError, ValueError):
+            return True
+
+        return path not in HEALTHCHECK_PATHS or status >= 400
 
 
 class DevelopmentFormatter(logging.Formatter):
@@ -99,11 +115,12 @@ def configure_logging(
             },
             "filters": {
                 "request_context": {"()": RequestContextFilter},
+                "successful_healthcheck": {"()": SuccessfulHealthcheckFilter},
             },
             "handlers": {
                 "console": {
                     "class": "logging.StreamHandler",
-                    "filters": ["request_context"],
+                    "filters": ["request_context", "successful_healthcheck"],
                     "formatter": formatter_name,
                     "stream": "ext://sys.stdout",
                 }

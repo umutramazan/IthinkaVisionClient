@@ -9,9 +9,10 @@ FastAPI ve detection runtime'ını şirket sunucusuna taşınabilir, tekrar üre
 - [FAZ 5](PHASE-05-detection-integration.md) tamamlanmış olmalı.
 - Nihai model runtime bağımlılıkları biliniyor olmalı.
 
-## Açık karar
+## Hedef runtime kararı
 
-Şirket sunucusunda GPU bulunup bulunmadığı bilinmemektedir. Önce mevcut ortamda doğrulanan CPU image hazırlanabilir; hedef sunucu GPU sağlıyorsa ayrı GPU image/profile eklenir.
+Şirket sunucusunda GPU bulunmadığı doğrulandı. Production hedefi, yerel ortamda doğrulanan ONNX Runtime
+`CPUExecutionProvider` image'ıdır; NVIDIA Container Toolkit veya ayrı GPU image/profile gerekmemektedir.
 
 ## CI/CD sınırı
 
@@ -21,9 +22,10 @@ edilebilir komutlar halinde belgelenir. Registry'ye otomatik image gönderme ve 
 
 ## Durum
 
-**Devam ediyor.** CPU image yerel Docker Desktop/WSL 2 ortamında build edildi; healthcheck, gerçek ONNX
-inference, Android preview uygulamasıyla LAN iletişimi, container restart ve temel concurrency testleri
-geçti. Temiz ortam tekrarı, gerçek log rollover testi ve commit sonrası reproducibility kaydı açık.
+**Tamamlandı.** CPU image temiz Docker Desktop/WSL 2 kurulumunda build edildi; healthcheck, gerçek ONNX
+inference, Android preview uygulamasıyla LAN iletişimi, container restart, concurrency, log rotation ve
+tekrar build kontrolleri geçti. Hedef sunucuda GPU bulunmadığı için CPU image production hedefi olarak
+kesinleştirildi.
 
 ## Container kararları
 
@@ -38,8 +40,7 @@ geçti. Temiz ortam tekrarı, gerçek log rollover testi ve commit sonrası repr
 - CPU image 2 CPU, 2 GiB RAM ve `APP_INFERENCE_MAX_CONCURRENCY=2` ile sınırlandırıldı.
 - Loglar stdout/stderr'a JSON olarak yazılır. Yerel rotation için `json-file`, `max-size=10m` ve
   `max-file=3` kullanılır.
-- GPU image/profile, şirket sunucusunun GPU ve NVIDIA Container Toolkit bilgileri öğrenildiğinde ayrı
-  artifact olarak ele alınacak; mevcut CPU image değiştirilmeyecek.
+- Şirket sunucusunda GPU bulunmadığı için NVIDIA runtime veya ayrı GPU image/profile oluşturulmayacak.
 
 ## Görevler
 
@@ -57,7 +58,7 @@ geçti. Temiz ortam tekrarı, gerçek log rollover testi ve commit sonrası repr
   yerel log rotation yapılandır.
 - [x] CPU/RAM limitleri ve inference concurrency değerlerini tanımla.
 - [x] `docker-compose.yml` veya production compose tanımı oluştur.
-- [ ] GPU gerekiyorsa NVIDIA container runtime profilini ayrıca oluştur.
+- [x] Hedef sunucuda GPU bulunmadığını ve NVIDIA container runtime profili gerekmediğini kaydet.
 - [x] Manuel build, smoke test, başlatma ve durdurma komutlarını CI/CD girdisi olacak şekilde kaydet.
 
 ## Güvenlik kontrolleri
@@ -70,14 +71,14 @@ geçti. Temiz ortam tekrarı, gerçek log rollover testi ve commit sonrası repr
 
 ## Testler
 
-- [ ] Temiz ortamda `docker compose up --build`.
+- [x] Temiz ortamda `docker compose up --build`.
 - [x] Healthcheck başarılı.
 - [x] Gerçek görselle analiz.
 - [x] Container restart sonrasında model yükleme.
 - [x] Geçici görsellerin container içinde kalmaması.
-- [ ] Log rotation sınırlarının çalıştığını ve container loglarının sınırsız disk tüketmediğini doğrula.
+- [x] Log rotation sınırlarının çalıştığını ve container loglarının sınırsız disk tüketmediğini doğrula.
 - [x] Bellek ve concurrency smoke testi.
-- [ ] Aynı commit ve model checksum'uyla image'ın tekrar üretilebildiğini doğrula.
+- [x] Aynı commit ve model checksum'uyla image'ın tekrar üretilebildiğini doğrula.
 
 ## Yerel doğrulama — 2026-08-07
 
@@ -96,10 +97,13 @@ geçti. Temiz ortam tekrarı, gerçek log rollover testi ve commit sonrası repr
 | Geçici dosya | Analiz sonrasında `/tmp` ve `/app` altında yüklenen görsel bulunmadı |
 | Kaynak sınırları | 2 CPU, 2 GiB RAM, concurrency 2; boşta yaklaşık 143 MiB |
 | Concurrency smoke | 4 paralel istek de `200`; test sonrası yaklaşık 224 MiB, container `healthy` |
-| Log yapılandırması | `json-file`, `max-size=10m`, `max-file=3` çalışan container üzerinde doğrulandı; gerçek rollover açık |
+| Log yapılandırması | `json-file`, `max-size=10m`, `max-file=3` çalışan API container üzerinde doğrulandı |
+| Log rotation | İzole testte 4000 satır/yaklaşık 2 MB üretildi; `10k × 3` sınırı yalnızca son 40 satır/yaklaşık 20 KB tuttu |
+| Health log gürültüsü | Başarılı live/ready probe kayıtları INFO'dan çıkarıldı; başarısız health ve analiz kayıtları korunuyor |
+| Entrypoint logları | Model checksum başarı/hata kayıtları tek satırlık production JSON biçimine getirildi |
 | Image içeriği | Model, `.env`, secret/anahtar ve test dosyası bulunmadı |
 | Tekrar build | Runtime manifest ve config aynı kaldı; BuildKit provenance attestation üst image kimliğini yeniledi |
-| Sunucu kalite kontrolü | Ruff lint/format temiz; `56` pytest testi geçti |
+| Sunucu kalite kontrolü | Ruff lint/format temiz; `61` pytest testi geçti |
 
 ## Manuel komutlar
 

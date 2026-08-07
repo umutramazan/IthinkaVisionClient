@@ -7,6 +7,7 @@ from starlette.datastructures import MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 REQUEST_ID_HEADER = "X-Request-ID"
+HEALTHCHECK_PATHS = frozenset({"/health/live", "/health/ready"})
 
 _request_id_context: ContextVar[str | None] = ContextVar("request_id", default=None)
 logger = logging.getLogger(__name__)
@@ -40,13 +41,15 @@ class RequestContextMiddleware:
         request_state["request_id"] = request_id
         context_token = _request_id_context.set(request_id)
         endpoint = scope["path"]
+        is_healthcheck = endpoint in HEALTHCHECK_PATHS
         started_at = perf_counter()
         response_status: int | None = None
 
-        logger.info(
-            "HTTP isteği başladı",
-            extra={"event": "request_started", "endpoint": endpoint},
-        )
+        if not is_healthcheck:
+            logger.info(
+                "HTTP isteği başladı",
+                extra={"event": "request_started", "endpoint": endpoint},
+            )
 
         async def send_with_request_id(message: Message) -> None:
             nonlocal response_status
@@ -94,6 +97,7 @@ class RequestContextMiddleware:
                 if status >= 400
                 else logging.INFO
             )
-            logger.log(level, "HTTP isteği tamamlandı", extra=extra)
+            if not is_healthcheck or status >= 400:
+                logger.log(level, "HTTP isteği tamamlandı", extra=extra)
         finally:
             _request_id_context.reset(context_token)

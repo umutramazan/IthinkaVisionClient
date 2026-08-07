@@ -1,3 +1,4 @@
+import logging
 from unittest.mock import patch
 from uuid import UUID
 
@@ -93,3 +94,34 @@ def test_request_lifecycle_logs_status_duration_and_analysis_fields(client: Test
     assert completion_extra["status"] == 400
     assert completion_extra["error_code"] == "INVALID_IMAGE"
     assert completion_extra["duration_ms"] >= 0
+
+
+def test_successful_healthcheck_skips_request_lifecycle_logs(client: TestClient) -> None:
+    with (
+        patch("app.core.request_context.logger.info") as log_started,
+        patch("app.core.request_context.logger.log") as log_completed,
+    ):
+        response = client.get("/health/ready")
+
+    assert response.status_code == 200
+    log_started.assert_not_called()
+    log_completed.assert_not_called()
+
+
+def test_failed_healthcheck_keeps_error_completion_log(client: TestClient) -> None:
+    client.app.state.model_ready = False
+    try:
+        with (
+            patch("app.core.request_context.logger.info") as log_started,
+            patch("app.core.request_context.logger.log") as log_completed,
+        ):
+            response = client.get("/health/ready")
+    finally:
+        client.app.state.model_ready = True
+
+    assert response.status_code == 503
+    log_started.assert_not_called()
+    log_completed.assert_called_once()
+    level, _message = log_completed.call_args.args
+    assert level == logging.ERROR
+    assert log_completed.call_args.kwargs["extra"]["status"] == 503

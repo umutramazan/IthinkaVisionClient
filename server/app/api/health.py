@@ -30,7 +30,7 @@ async def ready(request: Request, response: Response) -> HealthResponse:
         )
         return HealthResponse(status="unavailable")
     request.state.readiness = "ready"
-    logger.info(
+    logger.debug(
         "Readiness kontrolü başarılı",
         extra={
             "event": "readiness_checked",

@@ -74,6 +74,11 @@ Container root olmayan `app` kullanıcısıyla ve read-only kök dosya sistemiyl
 sınırı uygular. Yerel mobil testte `EXPO_PUBLIC_API_BASE_URL`, Docker host bilgisayarının LAN adresini ve
 `8000` portunu göstermelidir.
 
+Başarılı `/health/live` ve `/health/ready` çağrıları periyodik Docker probe gürültüsünü önlemek için INFO
+loglarına yazılmaz. Başarısız healthcheck'ler WARNING/ERROR olarak, analiz istekleri ise request ID ile
+birlikte normal şekilde loglanmaya devam eder. Container entrypoint'i model checksum başarı ve hata
+kayıtlarını diğer production loglarıyla aynı tek satırlık JSON biçiminde üretir.
+
 ## Analyze isteği
 
 Endpoint: `POST http://127.0.0.1:8000/api/v1/analyze`
