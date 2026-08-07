@@ -42,6 +42,38 @@ Production ortamına yalnızca `requirements.txt` kurulur.
 Mobil uygulamayı gerçek cihazdan bağlarken `--host 0.0.0.0` gereklidir ve
 `EXPO_PUBLIC_API_BASE_URL` bilgisayarın LAN IP'sini göstermelidir.
 
+## Docker ile çalıştırma
+
+CPU tabanlı production-benzeri container, repository kökünden tek komutla build edilip başlatılır:
+
+```powershell
+docker compose -f server/compose.yaml up --build --detach
+```
+
+Başlatmadan önce `server/models/best.onnx` dosyasının mevcut ve checksum değerinin
+`server/compose.yaml` içindeki `APP_MODEL_SHA256` ile aynı olması gerekir. Model image içine kopyalanmaz;
+container'a `/models/best.onnx` yolunda read-only bind mount olarak bağlanır.
+
+```powershell
+# Durum ve healthcheck
+docker compose -f server/compose.yaml ps
+
+# JSON uygulama logları
+docker compose -f server/compose.yaml logs --follow api
+
+# Liveness ve readiness
+curl.exe http://127.0.0.1:8000/health/live
+curl.exe http://127.0.0.1:8000/health/ready
+
+# Container'ı durdur ve Compose kaynaklarını kaldır
+docker compose -f server/compose.yaml down
+```
+
+Container root olmayan `app` kullanıcısıyla ve read-only kök dosya sistemiyle çalışır. Compose tanımı
+2 CPU, 2 GiB RAM, en fazla 2 eşzamanlı inference ve `json-file` logging driver için `10m × 3` rotation
+sınırı uygular. Yerel mobil testte `EXPO_PUBLIC_API_BASE_URL`, Docker host bilgisayarının LAN adresini ve
+`8000` portunu göstermelidir.
+
 ## Analyze isteği
 
 Endpoint: `POST http://127.0.0.1:8000/api/v1/analyze`

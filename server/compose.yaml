@@ -1,0 +1,41 @@
+name: ithinka-vision
+
+services:
+  api:
+    image: ithinka-vision-server:0.1.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: production
+      APP_HOST: 0.0.0.0
+      APP_PORT: "8000"
+      APP_LOG_LEVEL: INFO
+      APP_CORS_ALLOW_ORIGINS: "${APP_CORS_ALLOW_ORIGINS:-http://localhost}"
+      APP_MODEL_PATH: /models/best.onnx
+      APP_MODEL_SHA256: 39B2E8EC75F063D88A41344626EFAAB04C1643F5B82AFAA2536E4AD1488C796D
+      APP_MODEL_CONFIDENCE_THRESHOLD: "0.25"
+      APP_INFERENCE_MAX_CONCURRENCY: "2"
+    volumes:
+      - type: bind
+        source: ./models/best.onnx
+        target: /models/best.onnx
+        read_only: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    cpus: 2.0
+    mem_limit: 2g
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
